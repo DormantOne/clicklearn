@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ClickLearn – Add the HCC!</title>
+<style>
+:root{--teal:#5fc9b5;--teal-d:#1f8f7d;--purple:#7b3fb3;--link:#1a6fd0;--yellow:#ffd33d;--ink:#1f2a2e;--green:#14866d}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;font-size:12.5px;color:var(--ink);background:#cfe9e3;overflow-x:auto}
+button{font-family:inherit}
+#banner{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:12px;padding:8px 14px;background:linear-gradient(90deg,#0b2f45,#12606a 45%,#0b2f45);color:#fff;box-shadow:0 3px 14px rgba(0,0,0,.4);flex-wrap:wrap;min-width:1180px}
+.brand{display:flex;flex-direction:column;line-height:1}
+.brand h1{margin:0;font-size:30px;letter-spacing:1px;font-weight:900;background:linear-gradient(90deg,#ffe46b,#ff8a3d,#ff4fa3,#7cf3ff,#ffe46b);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite;white-space:nowrap}
+.brand small{font-size:11px;letter-spacing:3px;color:#ffe46b;font-weight:700;margin-top:3px}
+@keyframes shine{to{background-position:300% 0}}
+.stat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:3px 10px;text-align:center;min-width:72px}
+.stat b{display:block;font-size:19px;line-height:1.2}
+.stat span{font-size:9.5px;text-transform:uppercase;opacity:.8;letter-spacing:1px}
+#scoreStat b{color:#ffe46b}
+#mission{flex:1;min-width:230px;font-size:12.5px;line-height:1.35}
+#mission em{color:#ffe46b;font-style:normal;font-weight:700}
+.bbtn{background:var(--yellow);color:#222;border:0;border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer}
+.bbtn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5)}
+#ring{width:46px;height:46px}
+#ticker{min-width:1180px;background:#ffe46b;color:#3a2a00;padding:5px 14px;font-size:12.5px;display:flex;gap:10px;align-items:center;border-bottom:1px solid #d6a800}
+#ticker b{white-space:nowrap}
+#tickTxt{transition:opacity .4s}
+#epic{min-width:1180px;position:relative;user-select:none}
+#epic.shake{animation:shake .3s}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.titlebar{background:#7fd6c6;display:flex;align-items:center;gap:10px;padding:3px 8px;font-size:12px;border-bottom:1px solid #5bb}
+.epiclogo{font-weight:900;color:#c8102e;font-style:italic;font-size:18px;font-family:Georgia,serif}
+.search{background:#fff;border-radius:12px;padding:3px 12px;width:290px;color:#888;border:1px solid #9cc;cursor:text}
+.pill{background:#fff;border:1px solid #c33;color:#c33;border-radius:4px;padding:1px 6px;font-weight:700;cursor:pointer}
+.pill.n{border-color:#557;color:#335}
+.toolbar{background:#c6ece3;display:flex;gap:15px;padding:4px 8px;border-bottom:1px solid #8cc;overflow:hidden}
+.tb{cursor:pointer;white-space:nowrap}.tb:hover{text-decoration:underline}
+.ptab{background:#eaf8f4;padding:4px 10px;border-bottom:1px solid #9cc;font-weight:600;display:flex;gap:8px;align-items:center}
+.ptab .x{color:#888;cursor:pointer}
+.layout{display:grid;grid-template-columns:185px 1fr 365px;background:#f4fbf9;min-height:820px}
+.side{background:#eaf6f3;border-right:1px solid #b9dcd4;padding:8px 6px;font-size:11.5px}
+.side .row{margin:3px 0;color:#444}
+.adv{display:flex;align-items:center;gap:4px;background:var(--yellow);border:1px solid #d6a800;border-radius:3px;padding:2px 5px;margin:3px 0;font-weight:700;cursor:pointer}
+.adv:hover{outline:1px solid #a80}
+.sechead{color:#1a6fa0;font-weight:700;margin-top:10px;text-transform:uppercase;font-size:10.5px}
+.gap{display:flex;gap:4px;align-items:center;margin:2px 0;cursor:pointer}
+.dot{width:10px;height:10px;border-radius:50%;background:#c22;display:inline-block}
+.center{position:relative;padding:6px 10px;border-right:1px solid #b9dcd4}
+.tabs{display:flex;gap:2px;border-bottom:2px solid #b9dcd4}
+.tab{padding:6px 9px;background:#d9efe9;border:1px solid #b9dcd4;border-bottom:0;cursor:pointer;font-size:12px}
+.tab.big{font-size:14px;font-weight:600}
+.tab.active{background:#fff;border-top:3px solid #f0b400}
+h2.tv{color:var(--green);font-weight:400;font-size:20px;margin:6px 0}
+.subnav{display:flex;gap:14px;font-size:11.5px;margin-bottom:8px}
+.subnav span{cursor:pointer}.subnav .hl{background:var(--yellow);padding:1px 4px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.panel{background:#fff;border:1px solid #cfe3de;border-left:4px solid var(--purple);padding:6px 8px}
+.panel.blue{border-left-color:#3b7be0}.panel.green{border-left-color:#8bbf3a}
+.ph{font-size:15px;color:var(--purple);background:#efe6f7;display:inline-block;padding:2px 10px;border-radius:12px;margin-bottom:6px}
+.blue .ph{color:#1a6fd0;background:#e4eefb}.green .ph{color:#3d6b10;background:#eef6dd}
+.input{border:1px solid #bbb;padding:3px 6px;color:#999;background:#fff;display:inline-block;width:150px}
+.btn{display:inline-block;border:1px solid #bbb;background:#f6f6f6;padding:2px 7px;cursor:pointer;margin:2px 1px}
+.btn:hover{background:#e9f4ff}
+.reconcile{display:inline-block;background:var(--yellow);border-radius:12px;padding:2px 10px;font-weight:700;margin:6px 0;cursor:pointer}
+.med{display:grid;grid-template-columns:18px 1fr 120px 40px;gap:4px;padding:5px 0;border-bottom:1px solid #eee;align-items:center}
+.med a{color:var(--purple);cursor:pointer}
+.textarea{height:110px;border:1px solid #ccc;margin-top:6px;background:#fff}
+.fu{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:4px 0}.fu .btn{text-align:center}
+.notes{padding:6px 8px}
+.ntabs{display:flex;gap:2px}
+.notebox{border:1px solid #9cc;height:300px;background:#fff;margin-top:6px}
+.small{font-size:11px;color:#555}
+#learn{margin-top:10px;background:#fff;border:2px solid #7b3fb3;border-radius:10px;padding:8px 10px}
+#learn h4{margin:0 0 4px;color:#7b3fb3;font-size:13px}
+#learnBody{font-size:11.5px;line-height:1.45}
+#learnBody .k{display:inline-block;background:#efe6f7;color:#5a2690;border-radius:8px;padding:0 6px;font-weight:700;font-size:10.5px;margin-right:4px}
+#cr{position:absolute;left:4px;top:300px;width:calc(100% - 8px);background:#fff;border:2px solid var(--teal-d);box-shadow:0 10px 40px rgba(0,60,50,.35);z-index:20;display:none;padding:8px 10px 10px}
+#cr.show{display:block;animation:pop .25s ease-out}
+@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.crh{display:flex;justify-content:space-between;color:var(--green);font-weight:700;border-bottom:1px solid #ccc;padding-bottom:4px}
+.cert{background:#e6f3f0;border:1px solid #bcd;border-radius:8px;margin:8px 0;padding:6px 10px}
+.cert h4{margin:2px 0 6px;font-weight:400;font-size:14px}
+.cond{border-bottom:1px solid #cfe0db;padding:6px 0}.cond:last-child{border-bottom:0}
+.crow{display:grid;grid-template-columns:1fr 60px auto;gap:6px;align-items:start}
+.cname{color:var(--green);cursor:pointer;font-size:13px}.cname:hover{text-decoration:underline}
+.lnk{color:var(--link);cursor:pointer}
+.crow2{display:flex;gap:14px;justify-content:flex-end;align-items:center;margin-top:3px}
+.pl{display:inline-flex;align-items:center;gap:5px;cursor:pointer;border:1px solid transparent;border-radius:12px;padding:1px 8px}
+.pl .box{width:13px;height:13px;border:1.5px solid #555;border-radius:2px;display:inline-block;background:#fff}
+.pl.on{border-color:#9bb;background:#f2faf7;font-weight:700;color:#185}
+.ev{display:none;margin:6px 0 2px 18px;background:#fffbe6;border:1px dashed #d9b400;border-radius:6px;padding:5px 9px;font-size:11.5px}
+.ev.show{display:block;animation:pop .2s}
+.vd{margin-top:6px}.vd h3{margin:4px 0;color:var(--green);font-weight:400;font-size:16px}
+.vdi{background:#eefaf5;border:1px solid #bde3d3;border-radius:4px;padding:2px 6px;margin:2px 0}
+#acceptBtn{float:right;font-weight:700}
+#acceptBtn.ready{background:#1d9a6c;color:#fff;border-color:#147a54;animation:glow 1s infinite}
+@keyframes glow{50%{box-shadow:0 0 0 6px rgba(29,154,108,.35)}}
+.pulse{animation:pulse 1s infinite !important;position:relative;z-index:5}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,80,160,.9)}50%{box-shadow:0 0 0 7px rgba(255,80,160,0)}}
+.float{position:fixed;pointer-events:none;font-weight:900;font-size:20px;z-index:200;animation:floatUp 1.1s ease-out forwards;text-shadow:0 2px 0 #fff}
+.float.good{color:#0f9d58}.float.bad{color:#d32f2f}
+@keyframes floatUp{to{transform:translateY(-60px) scale(1.25);opacity:0}}
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#222;color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;z-index:450;opacity:0;transition:opacity .2s;pointer-events:none;max-width:80vw;text-align:center}
+#toast.show{opacity:.95}#toast.bad{background:#b3261e}#toast.good{background:#13795b}
+.confetti{position:fixed;top:-20px;width:9px;height:14px;z-index:500;pointer-events:none}
+.overlay{position:fixed;inset:0;background:rgba(5,30,40,.78);z-index:400;display:none;align-items:center;justify-content:center;overflow:auto;padding:20px}
+.overlay.show{display:flex}
+.card{background:#fff;border-radius:18px;max-width:560px;width:94%;padding:22px 26px;box-shadow:0 20px 60px rgba(0,0,0,.5);text-align:center}
+.card h2{margin:6px 0;font-size:28px;color:#0b4f5a}
+.card ol{text-align:left;line-height:1.6}
+.big{font-size:16px;padding:10px 18px;border-radius:10px;border:0;cursor:pointer;font-weight:800;margin:4px}
+.go{background:linear-gradient(90deg,#ff8a3d,#ff4fa3);color:#fff}
+.alt{background:#e3eeee;color:#234}
+/* WIN PANEL */
+#win .card{max-width:620px;padding:0;overflow:hidden;border:4px solid #ffe46b}
+.winTop{background:linear-gradient(135deg,#0b2f45,#12606a);color:#fff;padding:20px 20px 14px}
+.winTop .gj{font-size:54px;font-weight:900;letter-spacing:2px;line-height:1;background:linear-gradient(90deg,#ffe46b,#ff8a3d,#ff4fa3,#7cf3ff,#ffe46b);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 3s linear infinite}
+.winTop p{margin:6px 0 0;opacity:.9}
+.winBody{padding:16px 24px 20px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 10px}
+.grid3 div{background:#eef7f5;border-radius:10px;padding:6px}
+.grid3 b{display:block;font-size:22px;color:#0b4f5a}
+.learned{text-align:left;background:#f6f0fb;border-radius:10px;padding:8px 12px;font-size:12px;margin-bottom:10px}
+.learned b{color:#5a2690}
+.code{font-family:Consolas,monospace;font-size:22px;letter-spacing:2px;background:#0b2f45;color:#ffe46b;border-radius:10px;padding:8px;margin:8px 0}
+#wName{width:100%;padding:12px;border:2px solid #1a6fd0;border-radius:10px;font-size:16px;margin:6px 0;text-align:center}
+#mailBtn{display:block;width:100%;font-size:26px;font-weight:900;letter-spacing:1px;padding:18px;border-radius:14px;color:#fff;text-decoration:none;background:linear-gradient(90deg,#1a6fd0,#7b3fb3,#ff4fa3);background-size:200% 100%;animation:shine 3s linear infinite,bounce 1.2s ease-in-out infinite;box-shadow:0 8px 24px rgba(26,111,208,.45);margin:8px 0}
+@keyframes bounce{50%{transform:scale(1.04)}}
+#mailBtn small{display:block;font-size:12px;font-weight:600;letter-spacing:0;opacity:.95}
+.foot{font-size:10.5px;color:#678;margin-top:6px}
+</style>
+</head>
+<body>
+<div id="banner">
+<div class="brand"><h1>⚡ ClickLearn</h1><small>ADD THE HCC!</small></div>
+<svg id="ring" viewBox="0 0 46 46">
+<circle cx="23" cy="23" r="19" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="5"/>
+<circle id="ringArc" cx="23" cy="23" r="19" fill="none" stroke="#ffe46b" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="119.4" transform="rotate(-90 23 23)" style="transition:stroke-dashoffset .5s"/>
+<text id="ringTxt" x="23" y="27.5" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">0/3</text>
+</svg>
+<div class="stat" id="scoreStat"><b id="score">0</b><span>Points</span></div>
+<div class="stat"><b id="wrong">0</b><span>Wrong clicks</span></div>
+<div class="stat"><b id="timer">0:00</b><span>Time</span></div>
+<div class="stat"><b id="streak">0</b><span>🔥 Streak</span></div>
+<div class="stat"><b id="roundN">1</b><span>Round</span></div>
+<div id="mission"></div>
+<button class="bbtn ghost" id="hintBtn">💡 Hint: off</button>
+<button class="bbtn ghost" id="sndBtn">🔊 Sound</button>
+<button class="bbtn" id="resetBtn">↻ New patient</button>
+</div>
+<div id="ticker"><b>💡 HCC Pearl:</b><span id="tickTxt"></span></div>
+<div id="epic">
+<div class="titlebar">
+<span class="epiclogo">Epic</span>
+<span>Hyperspace – <b>ClickLearn Training Playground</b> (simulated – not real Bridges)</span>
+<span class="search" data-act="decoy" data-msg="Searching won't capture an HCC… try the advisories!">🔍 Search (Ctrl+Space)</span>
+<span style="flex:1"></span>
+<span class="pill" data-act="decoy" data-msg="In Basket can wait. The HCC cannot. 😅">⚠ 14</span>
+<span class="pill n" data-act="decoy" data-msg="Chart Completion: noble, but not this game.">Chart Completion 1</span>
+<span class="pill" data-act="decoy" data-msg="329 messages… let's not.">✉ 329</span>
+</div>
+<div class="toolbar">
+<span class="tb" data-act="decoy" data-msg="Learning Library is great for later!">📚 Learning Library</span>
+<span class="tb" data-act="decoy">POD</span><span class="tb" data-act="decoy">DMO ▾</span>
+<span class="tb" data-act="decoy">🔗 Clinical Links ▾</span><span class="tb" data-act="decoy">👤 Patient Lookup</span>
+<span class="tb" data-act="decoy">🛠 My Tools ▾</span>
+<span class="tb" data-act="decoy" data-msg="Remind Me… to add the HCC!">⏰ Remind Me</span>
+<span class="tb" data-act="decoy">SlicerDicer</span>
+<span class="tb" data-act="decoy" data-msg="No on-call needed — you've got this.">🔍 On-Call Finder</span>
+<span class="tb" data-act="decoy">📞 Telephone Call</span>
+<span class="tb" data-act="decoy" data-msg="Riskmaster ≠ risk adjustment. Nice try!">⚡ Riskmaster</span>
+<span class="tb" data-act="decoy">⚡ One Click</span><span class="tb" data-act="decoy">Appts</span>
+</div>
+<div class="ptab">
+<svg width="14" height="14" viewBox="0 0 14 14"><path d="M1 7h3l2-5 2 10 2-5h3" fill="none" stroke="#1f8f7d" stroke-width="1.6"/></svg>
+<span id="ptName">Practice, Pat</span> <span class="x" data-act="decoy" data-msg="Don't close the chart — the HCCs are in here!">✕</span>
+</div>
+<div class="layout">
+<aside class="side">
+<svg width="120" height="120" viewBox="0 0 120 120" style="display:block;margin:4px auto">
+<circle id="avBg" cx="60" cy="60" r="54" fill="#ffd9e3" stroke="#f3a2b8" stroke-width="3"/>
+<text id="avTxt" x="60" y="76" text-anchor="middle" font-size="44" fill="#e0457b" font-family="Segoe UI">PP</text>
+</svg>
+<div class="row" id="ptAge"></div>
+<div class="row">Pain Agreement: Not on File</div>
+<div class="row">Isolation: None</div>
+<div id="advs"></div>
+<div class="row" style="margin-top:8px">PCP: Me</div>
+<div class="row">Primary Cvg: Practice Plan</div>
+<div class="row">Allergies (2)</div>
+<div class="sechead">10:00 AM Follow Up</div>
+<div class="row" id="ptVitals"></div>
+<div class="sechead">Since your last visit</div>
+<div class="gap" data-act="decoy"><span class="dot"></span> ED (2)</div>
+<div class="gap" data-act="decoy">🧪 Lab (8)</div>
+<div class="gap" data-act="decoy">🦠 Micro (1)</div>
+<div class="sechead">Care Gaps</div>
+<div class="gap" data-act="decoy" data-msg="Care gaps matter — but first, certify the chronic conditions!"><span class="dot"></span> Diabetes Hemoglobin A1C</div>
+<div class="gap" data-act="decoy"><span class="dot"></span> Depression Screening</div>
+<div class="gap" data-act="decoy"><span class="dot"></span> COVID-19 Vaccine</div>
+</aside>
+<main class="center">
+<div class="tabs">
+<span class="tab big" data-act="decoy" data-msg="Chart Review: lovely rabbit hole. Stay focused!">📋 Chart Review</span>
+<span class="tab" data-act="decoy">Synopsis</span>
+<span class="tab big" data-act="decoy">🩺 Rooming</span>
+<span class="tab big active" data-act="decoy" data-msg="You're already on This Visit 🙂">📝 This Visit</span>
+<span class="tab" data-act="decoy">Annual Wellness Visit</span>
+<span class="tab" data-act="decoy">Immunizations</span>
+<span class="tab" data-act="decoy">Medications</span>
+</div>
+<h2 class="tv">This Visit</h2>
+<div class="subnav">
+<span data-act="decoy">Med Management</span><span data-act="decoy">Visit Diagnoses</span>
+<span data-act="decoy" data-msg="Close! But use the Chronic Condition Refresh advisory.">Problem List</span>
+<span data-act="decoy">SmartSets</span><span class="hl" data-act="decoy">OurPractice Advisories</span>
+<span style="flex:1"></span>
+<span data-act="decoy">Patient Instructions</span><span data-act="decoy">Follow-up</span><span data-act="decoy">Charge Capture</span>
+</div>
+<div class="cols">
+<section class="panel">
+<div class="ph">💊 Medication Management</div>
+<div><span class="input">Search for medications</span> <span class="btn" data-act="decoy">➕ Patient-Reported</span></div>
+<div class="reconcile" data-act="decoy" data-msg="Reconciling is great… but no HCC here.">⚠ Reconcile Outside Medications</div>
+<div id="meds"></div>
+</section>
+<section>
+<div class="panel blue"><div class="ph">📎 Patient Instructions</div>
+<div><span class="input">Attach reference</span> <span class="btn" data-act="decoy">➕ Add</span></div>
+<div class="textarea"></div></div>
+<div class="panel green" style="margin-top:10px"><div class="ph">🔗 Clinical References</div>
+<div class="lnk" data-act="decoy">Clinical References ↗</div></div>
+<div class="panel blue" style="margin-top:10px"><div class="ph">📅 Follow-up</div>
+<div class="small">☐ No follow-up needed</div>
+<div class="lnk" style="margin-top:4px">With Me</div>
+<div class="fu"><span class="btn" data-act="decoy">1 week</span><span class="btn" data-act="decoy">2 weeks</span><span class="btn" data-act="decoy">1 month</span><span class="btn" data-act="decoy">3 months</span><span class="btn" data-act="decoy">6 months</span></div>
+</div>
+</section>
+</div>
+<div id="cr">
+<div class="crh"><span>Condition Review</span><span class="lnk" data-act="decoy" data-msg="Expand All won't certify anything 😉">⇊ Expand All</span></div>
+<div class="cert"><h4>Chronic Condition Certification (3)</h4><div id="conds"></div></div>
+<div class="vd">
+<h3>Visit Diagnoses</h3>
+<div id="vdList" class="small">No visit diagnoses.</div>
+<div style="margin-top:6px">
+<span class="btn" data-act="decoy">Common ▾</span><span class="btn" data-act="decoy">Previous ▾</span><span class="btn" data-act="decoy">Problems ▾</span>
+<span class="btn" id="acceptBtn" data-act="accept">✔ Accept</span>
+</div>
+</div>
+</div>
+</main>
+<aside class="notes">
+<div class="ntabs"><span class="tab big active" data-act="decoy">📝 Notes</span><span class="tab" data-act="decoy">Review</span><span class="tab" data-act="decoy">Chart Insights</span></div>
+<div style="margin-top:6px">
+<span class="btn" data-act="decoy">➕ Create Note</span><span class="btn" data-act="decoy">Standard 1</span><span class="btn" data-act="decoy">Procedure 2</span>
+<span class="btn" data-act="decoy">Pre-Op 5</span>
+<span class="btn" data-act="decoy" data-msg="Ambient AI is listening… to you clicking the wrong thing. 🤖">Ambient AI 7</span>
+</div>
+<h3 style="color:var(--green);font-weight:400;margin:8px 0 2px">My Note</h3>
+<div class="small">Service: Internal Medicine · ☐ Cosign Required?</div>
+<div class="notebox"></div>
+<div style="margin-top:6px"><span class="lnk" data-act="decoy">⟳ SmartLinks</span> <span class="btn" data-act="decoy" data-msg="Signing before certifying HCCs? Bold move. Wrong, though.">✔ Accept</span> <span class="btn" data-act="decoy">✕ Cancel</span></div>
+<div id="learn">
+<h4>📘 ClickLearn: Know your Dx</h4>
+<div id="learnBody" class="small">Click a condition name in Condition Review to learn about it here.</div>
+</div>
+<div class="small" style="margin-top:10px;background:#fff;border:1px solid #cde;padding:8px;border-radius:6px">
+<b>MEAT check</b> for each HCC in your A/P: <b>M</b>onitor · <b>E</b>valuate · <b>A</b>ssess · <b>T</b>reat
+</div>
+</aside>
+</div>
+</div>
+<div id="toast"></div>
+<div class="overlay show" id="intro">
+<div class="card">
+<svg width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="32" fill="#ffe46b"/><path d="M40 10L22 38h12l-4 22 18-28H36z" fill="#c8102e"/></svg>
+<h2>⚡ ClickLearn: Add the HCC!</h2>
+<p>Each practice patient (all fake) has <b>3 uncaptured chronic conditions</b>, drawn at random from a rotating pool. Capture them and learn about each one.</p>
+<ol>
+<li>Click the <b>Chronic Condition Refresh</b> advisory <b>(+10)</b></li>
+<li>Click each <b>condition name</b> to review evidence and learn the dx <b>(+10)</b></li>
+<li>Click <b>Add to Problem List</b> <b>(+25)</b> · bonus: Add Visit Diagnosis <b>(+5)</b></li>
+<li>Hit <b>Accept</b>, then <b>email for credit</b></li>
+</ol>
+<p class="small">Wrong clicks cost <b>−5</b> and break your streak. Speed bonus at the end.</p>
+<button class="big go" id="startBtn">▶ Start</button>
+</div>
+</div>
+<div class="overlay" id="win">
+<div class="card">
+<div class="winTop">
+<div class="gj">GREAT JOB!</div>
+<p>🏆 All 3 HCCs captured for <b id="wPt"></b></p>
+</div>
+<div class="winBody">
+<div class="grid3">
+<div><b id="wScore">0</b>Points</div>
+<div><b id="wTime">0:00</b>Time</div>
+<div><b id="wAcc">100%</b>Accuracy</div>
+</div>
+<div class="learned" id="wLearned"></div>
+<div class="small" id="wBreak"></div>
+<div class="code" id="wCode">CL-XXXXXX</div>
+<input id="wName" placeholder="✍️ Type your name for credit">
+<a id="mailBtn" href="#">📧 EMAIL FOR CREDIT<small>Opens your email to sohnae@upmc.edu, already filled in. Just hit Send.</small></a>
+<div>
+<button class="big alt" id="copyBtn">📋 Copy code</button>
+<button class="big go" id="againBtn">↻ Next patient</button>
+</div>
+<div class="foot" id="best"></div>
+</div>
+</div>
+</div>
+<script>
+/* ---------- ROTATING DX POOL ---------- */
+const POOL=[
+{id:'dmckd',name:'Type 2 diabetes mellitus with diabetic chronic kidney disease (HCC)',alt:'Resolve Problem',
+meds:[['metFORMIN (Glucophage) 500 mg tablet','1,000 mg, Oral, BID'],['empagliflozin (Jardiance) 10 mg tablet','10 mg, Oral, Daily']],
+ev:['A1c 8.1%, eGFR 52, UACR 120 mg/g (practice data)','On metformin + SGLT2 inhibitor'],
+info:{what:'Diabetes with a kidney complication. In ICD-10-CM, "with" links diabetes and CKD unless you document another cause.',doc:'Name the complication and add the CKD stage as its own diagnosis.',pit:'"DM2, uncomplicated" plus a separate CKD entry loses the link.'}},
+{id:'ob',name:'Morbid (severe) obesity due to excess calories (HCC)',alt:'N/A to Patient',
+meds:[['semaglutide (Wegovy) 1.7 mg/0.75 mL pen','1.7 mg, Subcut, Weekly']],
+ev:['BMI 41.3 at this visit (practice data)','On GLP-1 RA for weight management'],
+info:{what:'Generally BMI ≥40, or ≥35 with obesity-related conditions.',doc:'Write the clinical diagnosis yourself. A BMI code only counts when a provider-documented weight diagnosis goes with it.',pit:'Leaving just a BMI from rooming with no assessment or plan.'}},
+{id:'hfpef',name:'Chronic diastolic (congestive) heart failure (HCC)',alt:'Resolve Problem',
+meds:[['torsemide (Demadex) 20 mg tablet','20 mg, Oral, Daily'],['spironolactone (Aldactone) 25 mg tablet','25 mg, Oral, Daily']],
+ev:['Echo: LVEF 58%, grade II diastolic dysfunction (practice data)','On loop diuretic + MRA'],
+info:{what:'Heart failure with preserved ejection fraction (HFpEF).',doc:'State the acuity (chronic) and the type (diastolic / HFpEF), plus volume status and plan.',pit:'"CHF" or "HF" without type or acuity is less specific.'}},
+{id:'ckd3b',name:'Chronic kidney disease, stage 3b (HCC)',alt:'Resolve Problem',
+meds:[['losartan (Cozaar) 50 mg tablet','50 mg, Oral, Daily']],
+ev:['eGFR 38 and 41, more than 3 months apart (practice data)','On ARB for renal protection'],
+info:{what:'eGFR 30–44 for at least 3 months.',doc:'Document the stage, the cause, and the monitoring (labs, ACEi/ARB, nephrology).',pit:'Using an unstaged "CKD" or calling it "renal insufficiency."'}},
+{id:'copd',name:'Chronic obstructive pulmonary disease (HCC)',alt:'N/A to Patient',
+meds:[['tiotropium (Spiriva Respimat) 2.5 mcg inhaler','2 puffs, Inhaled, Daily'],['albuterol HFA 90 mcg inhaler','2 puffs, q4h PRN']],
+ev:['Spirometry: FEV1/FVC 0.62 post-bronchodilator (practice data)','On LAMA + rescue SABA'],
+info:{what:'Persistent airflow limitation (post-bronchodilator FEV1/FVC < 0.70).',doc:'Note symptom control, exacerbations, and inhaler plan. Say whether it is "with acute exacerbation" when that applies.',pit:'Writing only "emphysema hx" in PMH with no assessment.'}},
+{id:'mdd',name:'Major depressive disorder, recurrent, moderate (HCC)',alt:'Resolve Problem',
+meds:[['sertraline (Zoloft) 100 mg tablet','100 mg, Oral, Daily']],
+ev:['PHQ-9 = 13 today (practice data)','On SSRI, followed by behavioral health'],
+info:{what:'Major depression with episodes that recur.',doc:'Specify single or recurrent episode, severity, and remission status.',pit:'"Depression, unspecified" may not risk-adjust. Be specific.'}},
+{id:'afib',name:'Persistent atrial fibrillation (HCC)',alt:'Resolve Problem',
+meds:[['apixaban (Eliquis) 5 mg tablet','5 mg, Oral, BID'],['metoprolol succinate 50 mg tablet','50 mg, Oral, Daily']],
+ev:['ECG today: AF, rate 78 (practice data)','On anticoagulant + rate control'],
+info:{what:'AF that lasts more than 7 days.',doc:'Give the AF type (paroxysmal, persistent, or permanent), the CHA₂DS₂-VASc score, and the anticoagulation plan.',pit:'Writing "history of AF" when it is still active and treated. "History of" implies resolved.'}},
+{id:'pad',name:'Atherosclerosis of native arteries of bilateral legs with intermittent claudication (HCC)',alt:'N/A to Patient',
+meds:[['cilostazol (Pletal) 100 mg tablet','100 mg, Oral, BID'],['clopidogrel (Plavix) 75 mg tablet','75 mg, Oral, Daily']],
+ev:['ABI 0.72 R / 0.78 L (practice data)','Calf claudication at 2 blocks'],
+info:{what:'Peripheral artery disease (PAD) from atherosclerosis.',doc:'State the vessel, the side(s), and the severity (claudication, rest pain, ulcer).',pit:'Plain "PVD" is less specific than the atherosclerosis codes.'}},
+{id:'ra',name:'Rheumatoid arthritis with rheumatoid factor, multiple sites (HCC)',alt:'Resolve Problem',
+meds:[['methotrexate 2.5 mg tablet','15 mg, Oral, Weekly'],['folic acid 1 mg tablet','1 mg, Oral, Daily']],
+ev:['RF and anti-CCP positive (practice data)','On methotrexate, followed by rheumatology'],
+info:{what:'An autoimmune inflammatory arthritis.',doc:'Give seropositive or seronegative status, the sites involved, disease activity, and DMARD monitoring.',pit:'Writing "arthritis" or "OA/RA" loosely.'}},
+{id:'hiv',name:'Human immunodeficiency virus (HIV) disease (HCC)',alt:'N/A to Patient',
+meds:[['bictegravir/emtricitabine/tenofovir AF (Biktarvy) tablet','1 tab, Oral, Daily']],
+ev:['Viral load undetectable, CD4 640 (practice data)','On ART, followed by ID clinic'],
+info:{what:'Chronic HIV infection treated with ART.',doc:'Document it every year, even with an undetectable viral load. Include ART adherence and labs.',pit:'Leaving it off because it is "well controlled."'}}
+];
+const FILLER_MEDS=[['atorvastatin (Lipitor) 20 mg tablet','20 mg, Oral, Daily'],['cyanocobalamin (B-12) 1,000 mcg tablet','1,000 mcg, Oral, Daily'],['amLODIPine (Norvasc) 5 mg tablet','5 mg, Oral, Daily'],['omeprazole 20 mg capsule','20 mg, Oral, Daily']];
+const NAMES=[['Practice, Pat','PP'],['Sample, Sam','SS'],['Testcase, Terry','TT'],['Demo, Dana','DD'],['Mock, Morgan','MM'],['Trainer, Taylor','TT']];
+const PEARLS=["HCCs are generally recaptured each calendar year — chronic doesn't mean 'counted forever.'","MEAT: Monitor, Evaluate, Assess, Treat — every HCC in your A/P should show at least one.","'History of' implies resolved. If it's active and treated, say so.","Specificity matters: type, acuity, stage, severity, complications.","A problem-list entry alone isn't enough — address it in the note.","Don't Defer what you can address today — the gap stays open.","Only certify what's clinically supported. Accuracy > volume."];
+const DECOY_ADVS=[['Flu Vaccine Due','Flu shots matter… but they\'re not an HCC! 💉'],['Tobacco Use Assessment','Tobacco assessment: good care, zero HCC points.'],['More Advisories (2)','More Advisories… less HCC.']];
+const WRONG_MSGS=["Nope — that's not where HCCs live! 🙃","So close… (not close).","The HCC is lonely. Go find it!","Wrong click! The CMS gods frown. ⛈","That's a lovely button. Wrong one, though."];
+const EMAIL='sohnae@upmc.edu';
+/* ---------- STATE ---------- */
+let S,CONDS=[],PT,round=0,timerId,idleT=0,hintOn=false,soundOn=true;
+const $=id=>document.getElementById(id);
+const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+function fresh(){return{score:0,wrong:0,good:0,streak:0,opened:false,reviewed:{},added:{},vdx:{},start:null,end:null,done:false}}
+/* ---------- AUDIO ---------- */
+let AC;
+function ac(){if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
+function tone(f,d,type='sine',v=.12,t0=0){if(!soundOn)return;try{const a=ac(),o=a.createOscillator(),g=a.createGain(),t=a.currentTime+t0;
+o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.03)}catch(e){}}
+const sGood=()=>{tone(880,.1,'square',.06);tone(1320,.14,'square',.06,.09)};
+const sBig=()=>[784,988,1175,1568].forEach((f,i)=>tone(f,.13,'triangle',.13,i*.07));
+const sBad=()=>{tone(170,.25,'sawtooth',.1);tone(118,.3,'sawtooth',.08,.06)};
+const sBPA=()=>{tone(1046,.09,'sine',.14);tone(1046,.09,'sine',.14,.14)};
+const sWin=()=>[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,.18,'square',.07,i*.11));
+/* ---------- RENDER ---------- */
+function renderPatient(){
+$('ptName').textContent=PT.name;$('avTxt').textContent=PT.init;
+const hue=Math.floor(Math.random()*360);$('avBg').setAttribute('fill',`hsl(${hue},80%,90%)`);$('avTxt').setAttribute('fill',`hsl(${hue},60%,45%)`);
+$('ptAge').textContent=`Age: ${PT.age} y.o. · Practice patient`;
+$('ptVitals').textContent=CONDS.some(c=>c.id==='ob')?'Wt: 121 kg · BMI 41.3':`Wt: ${70+Math.floor(Math.random()*25)} kg · BP 132/78`;
+const advs=shuffle([...DECOY_ADVS.map(a=>`<div class="adv" data-act="decoy" data-msg="${a[1]}">⚠ ${a[0]}</div>`),'<div class="adv" id="ccr" data-act="ccr">⚠ Chronic Condition Refresh</div>']);
+$('advs').innerHTML=advs.join('');
+const meds=shuffle([...CONDS.flatMap(c=>c.meds),...shuffle(FILLER_MEDS).slice(0,3)]);
+$('meds').innerHTML=meds.map(m=>`<div class="med"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M2 7l5-5 5 5v6H2z" fill="none" stroke="#7b3fb3" stroke-width="1.3"/></svg>
+<a data-act="decoy" data-msg="Meds are evidence — but you capture HCCs in Condition Review.">${m[0]}</a><span>${m[1]}</span><span data-act="decoy" style="cursor:pointer">✏️</span></div>`).join('');
+}
+function renderConds(){
+$('conds').innerHTML=CONDS.map(c=>{const on=S.added[c.id];
+return `<div class="cond"><div class="crow">
+<span class="cname" data-act="cond" data-id="${c.id}">ⓘ ${c.name}</span>
+<span class="lnk" data-act="decoy" data-msg="Search is for changing the dx — this one's already right.">🔍 Search</span>
+<span><span class="btn" data-act="vdx" data-id="${c.id}">Add Visit Diagnosis</span><span class="btn" data-act="decoy" data-msg="Defer?! The gap stays open. 😱">Defer</span><span class="btn" data-act="decoy" data-msg="It's still active — don't ${c.alt==='Resolve Problem'?'resolve it':'mark it N/A'}!">${c.alt}</span></span></div>
+<div class="crow2"><span class="lnk" data-act="decoy" data-msg="The dx is fine as-is.">△ Change Dx</span>
+<span class="pl ${on?'on':''}" data-act="pl" data-id="${c.id}">${on?'✔ Added to Problem List':'<span class="box"></span> Add to Problem List'}</span></div>
+<div class="ev ${S.reviewed[c.id]?'show':''}" id="ev-${c.id}"><b>Supporting evidence</b><ul style="margin:3px 0;padding-left:16px">${c.ev.map(x=>'<li>'+x+'</li>').join('')}</ul></div></div>`}).join('');
+}
+function showLearn(c){
+$('learnBody').innerHTML=`<b>${c.name.replace(' (HCC)','')}</b><br>
+<span class="k">WHAT</span>${c.info.what}<br><span class="k">DOCUMENT</span>${c.info.doc}<br><span class="k">PITFALL</span>${c.info.pit}`;
+$('learn').animate([{transform:'scale(1.04)',boxShadow:'0 0 0 6px rgba(123,63,179,.3)'},{transform:'scale(1)',boxShadow:'none'}],{duration:500});
+}
+function renderVdx(){const ids=Object.keys(S.vdx);
+$('vdList').innerHTML=ids.length?ids.map(id=>`<div class="vdi">✔ ${CONDS.find(c=>c.id===id).name}</div>`).join(''):'No visit diagnoses.'}
+function hud(){
+$('score').textContent=S.score;$('wrong').textContent=S.wrong;$('streak').textContent=S.streak;$('roundN').textContent=round;
+const n=Object.keys(S.added).length;$('ringTxt').textContent=n+'/3';$('ringArc').style.strokeDashoffset=119.4*(1-n/3);
+$('acceptBtn').classList.toggle('ready',n===3);
+$('mission').innerHTML=!S.opened?'Step 1: find the <em>Chronic Condition Refresh</em> advisory.'
+:n===3?'All 3 captured! Grab <em>Add Visit Diagnosis</em> bonuses, then hit <em>Accept</em>.'
+:`Review each condition, then <em>Add to Problem List</em>. (${n}/3)`;
+hint();
+}
+function nextTarget(){
+if(!S.opened||!$('cr').classList.contains('show'))return $('ccr');
+for(const c of CONDS){if(!S.reviewed[c.id])return document.querySelector(`[data-act="cond"][data-id="${c.id}"]`);
+if(!S.added[c.id])return document.querySelector(`[data-act="pl"][data-id="${c.id}"]`)}
+return $('acceptBtn');
+}
+function hint(){document.querySelectorAll('.pulse').forEach(e=>e.classList.remove('pulse'));
+if((hintOn||idleT>=12)&&!S.done){const t=nextTarget();t&&t.classList.add('pulse')}}
+/* ---------- TICKER ---------- */
+let tickI=0;
+function tick(){const items=[...PEARLS,...CONDS.map(c=>`${c.name.replace(' (HCC)','')}: ${c.info.doc}`)];
+const el=$('tickTxt');el.style.opacity=0;setTimeout(()=>{el.textContent=items[tickI++%items.length];el.style.opacity=1},400)}
+setInterval(tick,7000);
+/* ---------- FEEDBACK ---------- */
+function floatTxt(e,txt,cls){const d=document.createElement('div');d.className='float '+cls;d.textContent=txt;
+d.style.left=(e.clientX-10)+'px';d.style.top=(e.clientY-24)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1150)}
+let toastT;
+function toast(msg,cls=''){const t=$('toast');t.innerHTML=msg;t.className='show '+cls;clearTimeout(toastT);toastT=setTimeout(()=>t.className='',2200)}
+function award(pts,e,msg,big){S.streak++;S.good++;const b=S.streak>=3?5:0;S.score+=pts+b;
+floatTxt(e,'+'+(pts+b)+(b?' 🔥':''),'good');toast((big?'💥 ':'✅ ')+msg+(b?` · streak +${b}`:''),'good');big?sBig():sGood()}
+function wrong(e,msg){S.wrong++;S.streak=0;S.score=Math.max(0,S.score-5);floatTxt(e,'−5','bad');
+toast('❌ '+(msg||WRONG_MSGS[Math.floor(Math.random()*WRONG_MSGS.length)]),'bad');sBad();
+const ep=$('epic');ep.classList.remove('shake');void ep.offsetWidth;ep.classList.add('shake')}
+function confetti(){const cols=['#ffe46b','#ff4fa3','#7cf3ff','#5fc9b5','#ff8a3d','#7b3fb3'];
+for(let i=0;i<160;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=cols[i%cols.length];document.body.appendChild(c);
+const dx=(Math.random()-.5)*300,dur=1800+Math.random()*1800;
+c.animate([{transform:'translate(0,0)'},{transform:`translate(${dx}px,${innerHeight+60}px) rotate(${720*Math.random()}deg)`}],{duration:dur});setTimeout(()=>c.remove(),dur)}}
+/* ---------- TIMER ---------- */
+const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+const secs=()=>S.start?Math.floor(((S.end||Date.now())-S.start)/1000):0;
+function startTimer(){if(S.start)return;S.start=Date.now();timerId=setInterval(()=>{$('timer').textContent=fmt(secs());idleT++;if(idleT===12)hint()},1000)}
+/* ---------- CLICKS ---------- */
+$('epic').addEventListener('click',e=>{
+const el=e.target.closest('[data-act]');if(!el||S.done)return;
+startTimer();idleT=0;const act=el.dataset.act,id=el.dataset.id,c=CONDS.find(x=>x.id===id);
+switch(act){
+case 'ccr': if(!S.opened){S.opened=true;award(10,e,'Chronic Condition Refresh opened!')}else toast('Condition Review is open 👇');
+$('cr').classList.add('show');sBPA();$('cr').scrollIntoView({behavior:'smooth',block:'center'});break;
+case 'cond': if(!S.reviewed[id]){S.reviewed[id]=true;award(10,e,'Evidence reviewed — see 📘 ClickLearn panel')}
+$('ev-'+id).classList.toggle('show');showLearn(c);break;
+case 'pl': if(S.added[id]){toast('Already on the Problem List 👍');break}
+if(!S.reviewed[id]){wrong(e,'Review first! Click the condition name to see the evidence.');break}
+S.added[id]=true;award(25,e,'HCC added to Problem List!',true);renderConds();
+if(Object.keys(S.added).length===3)setTimeout(()=>{toast('🎉 All 3 captured! Now hit Accept.','good');sBPA()},900);break;
+case 'vdx': if(!S.added[id]){wrong(e,'Add it to the Problem List first.');break}
+if(S.vdx[id]){toast('Already a visit diagnosis 👍');break}
+S.vdx[id]=true;award(5,e,'Bonus: visit diagnosis added');renderVdx();break;
+case 'accept': if(Object.keys(S.added).length<3){wrong(e,`Not yet! ${3-Object.keys(S.added).length} HCC(s) still uncaptured.`);break}
+finish();break;
+case 'decoy': wrong(e,el.dataset.msg);break;
+}
+hud();
+});
+/* ---------- FINISH ---------- */
+function makeCode(name){const s=`${S.score}|${S.wrong}|${secs()}|${name}|${CONDS.map(c=>c.id).join(',')}|${new Date().toISOString().slice(0,10)}`;
+let h=5381;for(const ch of s)h=((h<<5)+h+ch.charCodeAt(0))>>>0;return 'CL-'+h.toString(36).toUpperCase().padStart(7,'0').slice(-6)+'-'+S.score}
+function finish(){
+S.done=true;S.end=Date.now();clearInterval(timerId);
+const t=secs(),bonus=Math.max(0,90-t);S.score+=bonus;hud();
+$('wPt').textContent=PT.name;$('wScore').textContent=S.score;$('wTime').textContent=fmt(t);
+$('wAcc').textContent=Math.round(100*S.good/Math.max(1,S.good+S.wrong))+'%';
+$('wLearned').innerHTML='<b>📘 You learned:</b><br>'+CONDS.map(c=>'✔ '+c.name.replace(' (HCC)','')).join('<br>');
+$('wBreak').textContent=`Speed bonus +${bonus} · Wrong clicks ${S.wrong} · Visit dx bonuses ${Object.keys(S.vdx).length}/3`;
+let best=0;try{best=+(localStorage.getItem('clickLearnBest')||0);if(S.score>best)localStorage.setItem('clickLearnBest',S.score)}catch(e){}
+$('best').textContent=S.score>best?`🌟 New personal best! (previous: ${best})`:`Personal best: ${best}`;
+updateMail();sWin();confetti();setTimeout(()=>{$('win').classList.add('show');$('wName').focus()},500);
+}
+function updateMail(){
+const name=$('wName').value.trim()||'(name not entered)',code=makeCode(name);$('wCode').textContent=code;
+const body=['ClickLearn: Add the HCC! — completed','',`Name: ${name}`,`Completion code: ${code}`,`Score: ${S.score}`,
+`Conditions captured (3/3):`,...CONDS.map(c=>' - '+c.name.replace(' (HCC)','')),
+`Visit dx bonuses: ${Object.keys(S.vdx).length}/3`,`Wrong clicks: ${S.wrong}`,`Time: ${fmt(secs())}`,`Date: ${new Date().toLocaleString()}`].join('\n');
+$('mailBtn').href=`mailto:${EMAIL}?subject=${encodeURIComponent('ClickLearn credit – '+name+' – '+code)}&body=${encodeURIComponent(body)}`;
+}
+$('wName').addEventListener('input',updateMail);
+$('mailBtn').addEventListener('click',e=>{if(!$('wName').value.trim()){e.preventDefault();$('wName').focus();$('wName').style.borderColor='#d32f2f';toast('✍️ Add your name first so you get credit!','bad');sBad()}else sGood()});
+$('copyBtn').onclick=()=>{const code=$('wCode').textContent,ok=()=>toast('Code copied 📋','good'),
+manual=()=>{const r=document.createRange();r.selectNodeContents($('wCode'));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Code selected. Press Ctrl+C to copy it.')};
+navigator.clipboard?navigator.clipboard.writeText(code).then(ok,manual):manual()};
+/* ---------- ROUNDS ---------- */
+function newRound(){
+clearInterval(timerId);S=fresh();idleT=0;round++;$('timer').textContent='0:00';
+CONDS=shuffle(POOL).slice(0,3);const n=NAMES[Math.floor(Math.random()*NAMES.length)];
+PT={name:n[0],init:n[1],age:55+Math.floor(Math.random()*25)};
+$('cr').classList.remove('show');$('win').classList.remove('show');$('wName').style.borderColor='';
+$('learnBody').innerHTML='Click a condition name in Condition Review to learn about it here.';
+renderPatient();renderConds();renderVdx();hud();tick();window.scrollTo({top:0});
+}
+$('startBtn').onclick=()=>{ac();sBPA();$('intro').classList.remove('show')};
+$('againBtn').onclick=()=>{newRound();sGood();toast('🧑‍⚕️ New patient, new HCCs!')};
+$('resetBtn').onclick=()=>{newRound();toast('🧑‍⚕️ New patient, new HCCs!')};
+$('hintBtn').onclick=()=>{hintOn=!hintOn;$('hintBtn').textContent='💡 Hint: '+(hintOn?'on':'off');hint()};
+$('sndBtn').onclick=()=>{soundOn=!soundOn;$('sndBtn').textContent=soundOn?'🔊 Sound':'🔇 Muted';if(soundOn)sGood()};
+newRound();
+</script>
+</body>
+</html>
