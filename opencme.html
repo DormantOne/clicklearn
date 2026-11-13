@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ClickLearn – Claim the CME!</title>
+<style>
+:root{--oe:#e0623a;--oe-d:#c94f28;--oe-bg:#fbf7f2;--ink:#1f2a2e;--yellow:#ffd33d;--link:#1a6fd0}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;font-size:13px;color:var(--ink);background:#e9e4dc;overflow-x:auto}
+button{font-family:inherit}
+#banner{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:12px;padding:8px 14px;background:linear-gradient(90deg,#0b2f45,#12606a 45%,#0b2f45);color:#fff;box-shadow:0 3px 14px rgba(0,0,0,.4);flex-wrap:wrap;min-width:1180px}
+.brand{display:flex;flex-direction:column;line-height:1}
+.brand h1{margin:0;font-size:30px;letter-spacing:1px;font-weight:900;background:linear-gradient(90deg,#ffe46b,#ff8a3d,#ff4fa3,#7cf3ff,#ffe46b);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite;white-space:nowrap}
+.brand small{font-size:11px;letter-spacing:3px;color:#ffe46b;font-weight:700;margin-top:3px}
+@keyframes shine{to{background-position:300% 0}}
+.stat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:3px 10px;text-align:center;min-width:72px}
+.stat b{display:block;font-size:19px;line-height:1.2}
+.stat span{font-size:9.5px;text-transform:uppercase;opacity:.8;letter-spacing:1px}
+#scoreStat b{color:#ffe46b}
+#mission{flex:1;min-width:250px;font-size:12.5px;line-height:1.35}
+#mission em{color:#ffe46b;font-style:normal;font-weight:700}
+.bbtn{background:var(--yellow);color:#222;border:0;border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer}
+.bbtn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5)}
+#ticker{min-width:1180px;background:#ffe46b;color:#3a2a00;padding:5px 14px;font-size:12.5px;display:flex;gap:10px;align-items:center;border-bottom:1px solid #d6a800}
+#ticker b{white-space:nowrap}#tickTxt{transition:opacity .4s}
+/* browser chrome */
+#app{min-width:1180px;position:relative;user-select:none;background:#fff}
+#app.shake{animation:shake .3s}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.chrome{display:flex;align-items:center;gap:10px;padding:6px 10px;background:#f3f3f3;border-bottom:1px solid #ddd;font-size:12px}
+.url{flex:1;background:#fff;border:1px solid #ccc;border-radius:14px;padding:4px 12px;color:#333}
+.url .lock{color:#777;margin-right:6px}
+.sim{background:#fff3cd;border:1px solid #e0c060;color:#6a5000;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600}
+.screen{display:none;min-height:760px}.screen.on{display:block}
+/* CMI handbook */
+#hb{background:#f7f7f7;padding:18px 24px}
+#hb h2{margin:0 0 14px;font-size:22px}
+.hbwrap{max-width:820px;margin:0 auto;background:#fff;border:1px solid #ddd;border-radius:10px;padding:26px 20px}
+.hbgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{color:#fff;font-weight:700;text-align:center;padding:16px 6px;border-radius:2px;cursor:pointer;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18);font-size:13px}
+.tile i{display:block;font-style:normal;font-size:22px;margin-bottom:4px}
+.tile:hover{filter:brightness(1.07)}
+.red{background:#e53935}.grn{background:#00c853}.grn2{background:#4caf50}.org{background:#ff6d00}.blu{background:#2196f3}.ylw{background:#ffc107;color:#222}.pur{background:#9c27b0}
+.span2{grid-column:span 2}.span3{grid-column:span 3}
+.hcc{grid-column:span 3;background:#d6d6d6;border:2px solid #999;padding:8px 12px;color:#222;border-radius:3px;cursor:pointer}
+.hblinks{margin-top:14px;font-size:12px;color:#888}.hblinks a{display:block;color:var(--link);font-size:15px;margin:6px 0;cursor:pointer}
+/* OpenEvidence shell */
+.oe{display:grid;grid-template-columns:200px 1fr;min-height:760px;background:#fff}
+.oeside{background:var(--oe-bg);border-right:1px solid #eee;padding:10px 8px;font-size:12.5px}
+.si{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-radius:6px;cursor:pointer;color:#333}
+.si:hover{background:#efe8de}.si.sel{background:#e9e2d8;font-weight:600}
+.sh{font-size:11px;color:#888;margin:12px 8px 4px}
+.hist{padding:4px 8px;color:#333;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.hist:hover{background:#efe8de}
+.oemain{position:relative}
+.pinkbar{background:#fbe3dc;text-align:center;padding:8px;font-size:12.5px}
+.pinkbar u{font-weight:700}
+.topbtns{display:flex;justify-content:flex-end;gap:8px;padding:10px 20px}
+.obtn{border:1px solid #f0c0b0;color:var(--oe);background:#fff;border-radius:4px;padding:5px 12px;cursor:pointer;font-weight:600}
+.obtn.fill{background:var(--oe);color:#fff;border-color:var(--oe)}
+.obtn:disabled,.obtn.dis{opacity:.45;cursor:not-allowed}
+.logo{font-family:Georgia,"Times New Roman",serif;font-size:38px;text-align:center;margin:40px 0 18px;position:relative}
+.logo span{display:inline-block;width:36px;height:36px;border:3px solid var(--oe);border-left-color:transparent;border-radius:50%;vertical-align:middle;margin-left:-14px}
+.ask{max-width:620px;margin:0 auto;border:1px solid #ddd;border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);color:#999;cursor:text;height:96px}
+.chips{max-width:620px;margin:14px auto;display:flex;gap:8px}
+.chip{border:1px solid #ddd;border-radius:6px;padding:7px 12px;cursor:pointer;background:#fafafa}
+.sug{max-width:620px;margin:6px auto;border-bottom:1px solid #eee;padding:8px 0;cursor:pointer;color:#333;font-size:12px}
+.pg{padding:10px 40px}
+.pg h1{font-family:Georgia,serif;font-weight:400;font-size:34px;margin:6px 0}
+.pg .sub{color:#777;margin-bottom:16px}
+.lgrid{display:grid;grid-template-columns:1fr 1fr 250px;gap:16px}
+.lcard{border:1px solid #e3ddd3;border-radius:12px;padding:16px;min-height:200px}
+.lcard .tag{display:inline-block;font-size:10px;letter-spacing:1px;border-radius:10px;padding:3px 8px;background:#fff;opacity:.85;font-weight:700}
+.lcard h3{font-family:Georgia,serif;font-weight:400;font-size:24px;margin:30px 0 4px}
+.lcard p{color:#666;margin:0 0 12px}
+.pbtn{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #ddd;border-radius:16px;padding:6px 12px;cursor:pointer;font-weight:600}
+.c1{background:#e9eef4}.c2{background:#e8ece4}.c3{background:#f5efe2}.c4{background:#f6e7e0}
+.streak{grid-row:span 2;border:1px solid #e3ddd3;border-radius:12px;padding:14px;cursor:pointer}
+.streak b{font-size:26px}
+.back{color:#666;cursor:pointer;margin:6px 0;display:inline-block}
+.cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:12px 0}
+.ccard{border:1px solid #e3ddd3;border-radius:10px;padding:14px;min-height:150px}
+.wbtn{display:block;width:100%;text-align:center;border:1px solid #ddd;border-radius:6px;padding:8px;cursor:pointer;margin-top:10px;background:#fff}
+.tabsx{display:flex;gap:18px;border-bottom:1px solid #eee;margin-top:6px}
+.tabsx span{padding:8px 4px;cursor:pointer}.tabsx .on{border-bottom:2px solid var(--oe);color:var(--oe)}
+table.tt{width:100%;border-collapse:collapse;margin-top:6px;border:1px solid #eee}
+.tt th{text-align:left;font-weight:600;padding:8px;border-bottom:1px solid #eee;background:#fafafa}
+.tt td{padding:9px 8px;border-bottom:1px solid #f0f0f0}
+.tt tr.sel td{background:#fdf0eb}
+.cb{width:15px;height:15px;border:1.5px solid #888;border-radius:3px;display:inline-block;cursor:pointer;vertical-align:middle;text-align:center;line-height:12px;font-size:11px;color:#fff}
+.cb.on{background:var(--oe);border-color:var(--oe)}
+.footbar{display:flex;justify-content:space-between;align-items:center;padding:10px 4px}
+/* review */
+.rv{display:grid;grid-template-columns:1fr 470px;gap:20px;padding:6px 20px}
+#art{height:560px;overflow:auto;border-right:1px solid #eee;padding-right:18px;font-family:Georgia,serif;font-size:14px;line-height:1.55;user-select:text;-webkit-user-select:text}
+#art ::selection{background:#ffe46b}
+.asked{background:#f5f5f5;border:1px solid #e5e5e5;border-radius:6px;padding:10px;font-family:"Segoe UI",sans-serif;font-size:13px;margin:6px 0 12px}
+.ce{display:flex;justify-content:space-between;align-items:center;font-family:"Segoe UI";font-size:11px;letter-spacing:1px;color:#666}
+.dom{border:1px solid #ccc;border-radius:12px;padding:3px 10px;letter-spacing:0;color:#333}
+#art h3{font-size:18px;margin:8px 0 12px}
+.sent{cursor:pointer;border-radius:3px}
+.sent:hover{background:#fff1a8}
+.sent.k{background:#ffd76a;box-shadow:0 0 0 2px #ffd76a}
+.refs{font-family:"Segoe UI";font-size:12px;color:#555}.refs li{margin:5px 0}.refs b{color:var(--oe-d);font-weight:600}
+.rpanel h4{margin:6px 0;font-weight:500;font-size:15px;display:flex;justify-content:space-between}
+.rbox{border:1.5px solid #f0b8a5;border-radius:8px;position:relative}
+.rhead{background:#f2f2f2;padding:10px 14px;font-size:12px;display:grid;grid-template-columns:70px 1fr}
+.rhead small{color:#888;letter-spacing:1px}
+.rform{padding:12px 14px;transition:filter .3s}
+.rbox.locked .rform{filter:blur(3px);opacity:.6}
+.lockmsg{position:absolute;left:0;right:0;top:150px;text-align:center;font-size:14px;display:none}
+.rbox.locked .lockmsg{display:block}
+.rcols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rq{font-size:12px;color:#444;margin-bottom:6px}.rq em{color:#d33;font-style:normal}
+.rad{display:flex;gap:8px;align-items:center;padding:4px 0;cursor:pointer;font-size:12.5px}
+.rad .o{width:14px;height:14px;border-radius:50%;border:1.5px solid #888;display:inline-block;flex:none}
+.rad.on .o{border:4px solid var(--oe)}
+#keyShow{min-height:38px;border:1px dashed #ccc;border-radius:6px;padding:6px;font-size:12px;color:#888;margin:4px 0 10px}
+#keyShow.set{color:#222;border-color:#e0a000;background:#fffaf0}
+#refl{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px;font-family:inherit;font-size:12.5px}
+#revBtn{display:block;width:240px;margin:24px auto 0;padding:10px;font-size:14px}
+#revBtn.ready{animation:glow 1s infinite}
+@keyframes glow{50%{box-shadow:0 0 0 6px rgba(224,98,58,.35)}}
+/* modals */
+.mback{position:absolute;inset:0;background:rgba(80,80,80,.55);display:none;align-items:flex-start;justify-content:center;z-index:30;padding-top:40px}
+.mback.show{display:flex}
+.modal{background:#fff;border-radius:8px;width:600px;box-shadow:0 10px 40px rgba(0,0,0,.4);animation:pop .2s}
+@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.mbody{padding:16px 20px}
+.warn{background:#fff6e0;border:1px solid #f1d38a;border-radius:6px;padding:8px;color:#7a5a00;margin-bottom:10px}
+.frow{display:grid;gap:10px;margin:8px 0}.f3{grid-template-columns:1fr 1fr 1fr}.f2{grid-template-columns:1fr 1fr}
+.frow label{font-size:12px;display:block;margin-bottom:3px}.frow label em{color:#d33;font-style:normal}
+.frow input,.frow select{width:100%;padding:7px;border:1px solid #ccc;border-radius:5px;font-family:inherit;font-size:13px}
+#dob.bad{border-color:#d32f2f;background:#fff1f1}
+.msec{font-size:11px;letter-spacing:1px;color:#666;margin-top:12px;border-top:1px solid #eee;padding-top:10px}
+.consent{display:flex;gap:8px;align-items:center;margin-top:12px;cursor:pointer;font-size:12.5px}
+.mfoot{display:flex;justify-content:flex-end;gap:10px;padding:12px 20px;border-top:1px solid #eee;background:#faf8f5;border-radius:0 0 8px 8px}
+.cgrid{display:grid;grid-template-columns:1fr 200px;gap:20px;font-size:13px}
+.cgrid small{display:block;font-size:10.5px;letter-spacing:1px;color:#777;margin-bottom:4px}
+/* coach */
+#coach{min-width:1180px;margin:0;background:#fff;border-top:3px solid #7b3fb3;padding:10px 18px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+#coach h4{margin:0 0 4px;color:#7b3fb3}
+#coachBody,#topicBody{font-size:12.5px;line-height:1.5}
+.k2{display:inline-block;background:#efe6f7;color:#5a2690;border-radius:8px;padding:0 6px;font-weight:700;font-size:10.5px;margin-right:4px}
+/* feedback */
+.pulse{animation:pulse 1s infinite !important;position:relative;z-index:5}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,80,160,.9)}50%{box-shadow:0 0 0 7px rgba(255,80,160,0)}}
+.float{position:fixed;pointer-events:none;font-weight:900;font-size:20px;z-index:600;animation:floatUp 1.1s ease-out forwards;text-shadow:0 2px 0 #fff}
+.float.good{color:#0f9d58}.float.bad{color:#d32f2f}
+@keyframes floatUp{to{transform:translateY(-60px) scale(1.25);opacity:0}}
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#222;color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;z-index:650;opacity:0;transition:opacity .2s;pointer-events:none;max-width:80vw;text-align:center}
+#toast.show{opacity:.95}#toast.bad{background:#b3261e}#toast.good{background:#13795b}
+.confetti{position:fixed;top:-20px;width:9px;height:14px;z-index:700;pointer-events:none}
+.overlay{position:fixed;inset:0;background:rgba(5,30,40,.78);z-index:500;display:none;align-items:center;justify-content:center;overflow:auto;padding:20px}
+.overlay.show{display:flex}
+.card{background:#fff;border-radius:18px;max-width:580px;width:94%;padding:22px 26px;box-shadow:0 20px 60px rgba(0,0,0,.5);text-align:center}
+.card h2{margin:6px 0;font-size:28px;color:#0b4f5a}
+.card ol{text-align:left;line-height:1.6}
+.big{font-size:16px;padding:10px 18px;border-radius:10px;border:0;cursor:pointer;font-weight:800;margin:4px}
+.go{background:linear-gradient(90deg,#ff8a3d,#ff4fa3);color:#fff}.alt{background:#e3eeee;color:#234}
+.small{font-size:11.5px;color:#555}
+#win .card{max-width:640px;padding:0;overflow:hidden;border:4px solid #ffe46b}
+.winTop{background:linear-gradient(135deg,#0b2f45,#12606a);color:#fff;padding:20px 20px 14px}
+.winTop .gj{font-size:54px;font-weight:900;letter-spacing:2px;line-height:1;background:linear-gradient(90deg,#ffe46b,#ff8a3d,#ff4fa3,#7cf3ff,#ffe46b);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 3s linear infinite}
+.winTop p{margin:6px 0 0;opacity:.9}
+.winBody{padding:16px 24px 20px}
+.grid3{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:4px 0 10px}
+.grid3 div{background:#eef7f5;border-radius:10px;padding:6px}
+.grid3 b{display:block;font-size:22px;color:#0b4f5a}
+.learned{text-align:left;background:#f6f0fb;border-radius:10px;padding:8px 12px;font-size:12px;margin-bottom:10px}
+.learned b{color:#5a2690}
+.code{font-family:Consolas,monospace;font-size:22px;letter-spacing:2px;background:#0b2f45;color:#ffe46b;border-radius:10px;padding:8px;margin:8px 0}
+#wName{width:100%;padding:12px;border:2px solid #1a6fd0;border-radius:10px;font-size:16px;margin:6px 0;text-align:center}
+#mailBtn{display:block;width:100%;font-size:26px;font-weight:900;letter-spacing:1px;padding:18px;border-radius:14px;color:#fff;text-decoration:none;background:linear-gradient(90deg,#1a6fd0,#7b3fb3,#ff4fa3);background-size:200% 100%;animation:shine 3s linear infinite,bounce 1.2s ease-in-out infinite;box-shadow:0 8px 24px rgba(26,111,208,.45);margin:8px 0}
+@keyframes bounce{50%{transform:scale(1.04)}}
+#mailBtn small{display:block;font-size:12px;font-weight:600;letter-spacing:0;opacity:.95}
+.foot{font-size:10.5px;color:#678;margin-top:6px}
+/* tutorial mode: a callout that points at the next click */
+#hintBtn.on{background:rgba(255,228,107,.16);border-color:#ffe46b;color:#ffe46b}
+#guide{position:fixed;left:0;top:0;z-index:450;max-width:290px;background:#ffe46b;color:#2a1f00;border:2px solid #c99700;border-radius:12px;padding:9px 13px 10px;box-shadow:0 10px 28px rgba(0,0,0,.3);pointer-events:none;opacity:0;transition:opacity .15s}
+#guide.show{opacity:1}
+#guide b{display:block;font-size:13.5px;line-height:1.3}
+#guide span{display:block;font-size:11.5px;line-height:1.35;margin-top:3px;color:#5a4600}
+#guide::after{content:"";position:absolute;left:var(--ax,50%);width:14px;height:14px;background:#ffe46b;border:2px solid #c99700;transform:translateX(-50%) rotate(45deg)}
+#guide.above::after{bottom:-9px;border-top:0;border-left:0}
+#guide.below::after{top:-9px;border-bottom:0;border-right:0}
+#guide.right::after{left:-9px;top:var(--ay,50%);transform:translateY(-50%) rotate(45deg);border-top:0;border-right:0}
+/* key learning point: the sentence to highlight */
+.sent::before{display:inline-block;font:700 10px/1 "Segoe UI",Tahoma,Arial,sans-serif;border-radius:8px;padding:2px 7px;margin-right:6px;vertical-align:2px;white-space:nowrap}
+.tut .sent[data-key]{text-decoration:underline dashed #c99700;text-decoration-thickness:1.5px;text-underline-offset:4px}
+.tut #art:not(.has-key) .sent[data-key]::before{content:"⭐ Key point";background:#fff;color:#5a4600;box-shadow:inset 0 0 0 1.5px #c99700}
+.sent.k::before{content:"✍️ Your key point";background:#13795b;color:#fff}
+.sent.k+.sent.k::before{content:none}
+@keyframes marker{0%,100%{background:#fff3b0;box-shadow:0 0 0 2px #ffe46b}50%{background:#ffc93c;box-shadow:0 0 0 6px rgba(255,201,60,.3)}}
+.sent.pulse{animation:marker 1.1s ease-in-out infinite !important}
+.sent.flash{animation:marker .55s ease-in-out 4}
+#keyShow.need{border:2px dashed var(--oe);background:#fff6f0;color:#7a3a1a;animation:glow 1s infinite}
+#keyShow q{font-style:italic}
+.findk{color:var(--link);text-decoration:underline;cursor:pointer;font-weight:600;white-space:nowrap;margin-left:6px}
+@media (prefers-reduced-motion:reduce){.sent.pulse,.sent.flash{animation:none !important;background:#ffd76a}#keyShow.need{animation:none}#guide{transition:none}}
+</style>
+</head>
+<body>
+<div id="banner">
+<div class="brand"><h1>⚡ ClickLearn</h1><small>CLAIM THE CME!</small></div>
+<div class="stat" id="scoreStat"><b id="score">0</b><span>Points</span></div>
+<div class="stat"><b id="wrong">0</b><span>Wrong clicks</span></div>
+<div class="stat"><b id="timer">0:00</b><span>Time</span></div>
+<div class="stat"><b id="streak">0</b><span>🔥 Streak</span></div>
+<div class="stat"><b id="claimedStat">0.0</b><span>Credits claimed</span></div>
+<div id="mission"></div>
+<button class="bbtn ghost on" id="hintBtn" title="Tutorial mode puts a yellow callout on every next click. Turn it off for challenge mode.">🎓 Tutorial: on</button>
+<button class="bbtn ghost" id="sndBtn">🔊 Sound</button>
+<button class="bbtn" id="resetBtn">↻ New topic</button>
+</div>
+<div id="ticker"><b>💡 CME Pearl:</b><span id="tickTxt"></span></div>
+<div id="app">
+<div class="chrome">
+<span data-act="decoy" data-msg="Back button? We're going forward. 🚀" style="cursor:pointer">←</span>
+<span data-act="decoy" data-msg="Refreshing won't claim anything." style="cursor:pointer">⟳</span>
+<div class="url"><span class="lock">🔒</span><span id="url">https://cmihandbook.com</span></div>
+<span class="sim">SIMULATED · not affiliated with OpenEvidence · no real credits</span>
+</div>
+<!-- CMI HANDBOOK -->
+<section class="screen" id="s-hb">
+<div id="hb">
+<h2>CMI Handbook</h2>
+<div class="hbwrap">
+<div class="hbgrid">
+<div class="tile red" data-act="decoy" data-msg="Find Talk is for lectures. CME from OpenEvidence lives elsewhere."><i>🔎</i>Find Talk</div>
+<div class="tile red span2" data-act="decoy" data-msg="Lecture Series = great CME too… but not today's game."><i>📚</i>Lecture Series</div>
+<div class="tile grn" data-act="decoy"><i>💰</i>Primary Care Quality</div>
+<div class="tile grn2" data-act="decoy"><i>📜</i>Health Plan Quality</div>
+<div class="tile org" data-act="decoy" data-msg="Mail Check can wait. Credits can't! 📬"><i>✉️</i>Mail Check</div>
+<div class="hcc" data-act="decoy" data-msg="Spot the HCC is a different game. 😉"><b>Spot the HCC</b> <span class="small">· three codes, one risk-adjusts</span></div>
+<div class="tile blu" data-act="decoy"><i>👤</i>Find Consultant</div>
+<div class="tile blu span2" data-act="decoy" data-msg="The AI consultant can't claim your CME for you. Yet."><i>🪄</i>AI Find Consultant</div>
+<div class="tile ylw" data-act="decoy" data-msg="Antibiogram: excellent, zero CME credits."><i>🧬</i>Antibiogram</div>
+<div class="tile ylw" data-act="oe" id="t-oe"><i>🔍</i>Open Evidence</div>
+<div class="tile ylw" data-act="decoy"><i>🧮</i>Common Calculators</div>
+<div class="tile pur span3" data-act="decoy" data-msg="Exploratory Features: fun, but stay on mission."><i>⚙️</i>Exploratory Features</div>
+</div>
+<div class="hblinks">UPMC Device or WIFI<a data-act="decoy" data-msg="UpToDate has its own CME path — different game.">UpToDate</a><a data-act="decoy">Micromedex</a></div>
+</div>
+</div>
+</section>
+<!-- OPENEVIDENCE SHELL -->
+<section class="screen" id="s-oe">
+<div class="oe">
+<aside class="oeside">
+<div class="si" data-act="decoy" data-msg="A new conversation earns credit later — today, claim what you've earned.">✎ New Conversation</div>
+<div class="si" data-act="decoy" data-msg="Visits is for patient encounters.">🗒 Visits</div>
+<div class="si" data-act="learn" id="sideLearn">🎓 Learn <span id="sideCred">12.5</span></div>
+<div class="sh">Workspace ▾</div>
+<div class="si" data-act="decoy">🔧 Tools ›</div>
+<div class="si" data-act="decoy">👥 Community</div>
+<div class="si" data-act="decoy">🧭 Discover</div>
+<div class="si" data-act="decoy" data-msg="Patients won't get you CME.">🗂 Patients ›</div>
+<div class="sh">History ▾</div>
+<div id="histList"></div>
+<div class="si" style="margin-top:14px" data-act="decoy" data-msg="Profile is edited from the CME page.">🙂 Pat Practice, MD</div>
+</aside>
+<main class="oemain">
+<div class="pinkbar" data-act="decoy" data-msg="Nice partners. Still not the CME button.">OpenEvidence has signed content agreements with <u>NEJM</u>, <u>JAMA</u>, <u>Nature</u>, <u>NCCN</u>, <u>Cochrane</u>, and more.</div>
+<div class="topbtns"><span class="obtn" data-act="decoy" data-msg="New Visit starts a patient encounter.">👤 New Visit</span><span class="obtn fill" data-act="decoy" data-msg="New Conversation… later!">✎ New Conversation</span></div>
+<!-- HOME -->
+<div class="sub-oe" id="v-home">
+<div class="logo">OpenEvidence<span></span></div>
+<div class="ask" data-act="decoy" data-msg="Asking a question earns future credit. Claim existing credit via Learn.">Ask a medical question…</div>
+<div class="chips"><span class="chip" data-act="decoy">↳ Clinical Decision Support</span><span class="chip" data-act="decoy">≡</span><span class="chip" data-act="decoy">Σ</span><span class="chip" data-act="decoy">🛡</span></div>
+<div class="sug" data-act="decoy">Potential of mRNA-based therapies in chronic HIV management ↗</div>
+<div class="sug" data-act="decoy">Managing acute psychiatric crises during medical hospitalization ↗</div>
+<div class="sug" data-act="decoy">Use of GLP-1 agonists in primary prevention of diabetes ↗</div>
+</div>
+<!-- LEARN -->
+<div class="sub-oe pg" id="v-learn">
+<h1>Learn</h1><div class="sub">Your personalized medical education hub (simulated)</div>
+<div class="lgrid">
+<div class="lcard c1"><span class="tag">USMLE, COMLEX, BOARDS</span><h3>Test Prep</h3><p>Evidence-backed board questions.</p><span class="pbtn" data-act="decoy" data-msg="Test Prep is practice questions, not credit claiming.">Start a set ▶</span></div>
+<div class="lcard c2"><span class="tag">SOCRATIC TUTOR</span><h3>Preceptor</h3><p>Work up a simulated patient.</p><span class="pbtn" data-act="decoy" data-msg="Preceptor is fun. Not the CME path.">Start a case ▶</span></div>
+<div class="streak" data-act="decoy" data-msg="Streaks are motivating — credits are in the CME card."><b>🔥 0</b> day streak<p class="small">A little learning today starts your streak.</p></div>
+<div class="lcard c3"><span class="tag">SPACED REPETITION</span><h3>Flashcards</h3><p>Review the concepts that matter.</p><span class="pbtn" data-act="decoy">Review cards ▶</span></div>
+<div class="lcard c4"><span class="tag">EARN CREDIT</span><h3>CME</h3><p>Earn credit for the clinical questions you already ask.</p><span class="pbtn" data-act="browse" id="browseBtn">Browse credits →</span> <span class="small" id="learnCred"></span></div>
+</div>
+</div>
+<!-- CME -->
+<div class="sub-oe pg" id="v-cme">
+<span class="back" data-act="decoy" data-msg="Going back won't claim anything.">← Learn</span>
+<h2 style="margin:4px 0;font-weight:600;font-size:17px">Continuing Medical Education (CME)</h2>
+<div class="small">Claim CME/CE credits by reviewing board topics related to your past questions.</div>
+<div class="cards3">
+<div class="ccard"><b>Pat Practice, MD</b><p class="small" id="profStatus">ⓘ Add your credentials to enable automatic reporting.</p><span class="wbtn" data-act="profile" id="editProf">✎ Edit Learner Profile</span></div>
+<div class="ccard"><b style="font-size:22px" id="availBig">12.5</b> credits available<p class="small">Certified for<br>• <i>AMA PRA Category 1 Credits™</i><br>• MOC credits with select certifying boards</p></div>
+<div class="ccard"><b>Credit Reporting</b><p class="small">Credit Year: 2026</p><span class="wbtn" data-act="decoy" data-msg="Transcript comes after you claim — and is handy at license renewal.">⬇ Download Transcript (2026)</span></div>
+</div>
+<div class="tabsx"><span class="on">Available</span><span data-act="decoy" data-msg="Claimed is where it goes after you're done.">Claimed</span></div>
+<table class="tt"><thead><tr><th style="width:40px"><span class="cb" data-act="decoy" data-msg="Select-all? Bold. Just today's topic, please."></span></th><th style="width:70px">Credits</th><th>Topic</th><th>Content Domain</th></tr></thead><tbody id="topicRows"></tbody></table>
+<div class="footbar"><b id="selCred">0.0 credits selected</b><span class="obtn fill" data-act="goreview" id="goRev">Go to Review</span></div>
+</div>
+<!-- REVIEW -->
+<div class="sub-oe" id="v-review">
+<div class="rv">
+<div>
+<span class="back" data-act="decoy" data-msg="Stay! You're nearly there.">← Back to CME Dashboard</span>
+<div id="art"></div>
+</div>
+<div class="rpanel">
+<h4><span>Review</span><span><b id="credDone">0.0</b> credits completed</span></h4>
+<div class="rbox locked" id="rbox">
+<div class="rhead"><small>CREDITS</small><small>TOPIC</small><span>0.5</span><span id="rvTopic"></span></div>
+<div class="lockmsg">📜 Review the full activity to continue.<br><span class="small">(scroll to the end of the article)</span></div>
+<div class="rform">
+<div class="rcols">
+<div><div class="rq">Skills/strategy reinforced by this activity (select one): <em>*</em></div><div id="skillOpts"></div></div>
+<div><div class="rq">Application to my healthcare team's practice (select one): <em>*</em></div><div id="appOpts"></div></div>
+</div>
+<div class="rq" style="margin-top:10px"><b>Key learning point (required)</b> <em>*</em><br>👈 <b>Highlight a sentence in the activity:</b> drag across it, or just click it.</div>
+<div id="keyShow"></div>
+<div class="rq">Additional reflections <span class="small">(optional · +5 bonus)</span></div>
+<textarea id="refl" rows="2" placeholder="How did this change or reinforce your clinical reasoning?"></textarea>
+</div>
+</div>
+<span class="obtn fill dis" id="revBtn" data-act="revcred">Review Credits</span>
+</div>
+</div>
+</div>
+<!-- PROFILE MODAL -->
+<div class="mback" id="mProfile">
+<div class="modal">
+<div class="mbody">
+<div class="small">This information is required for credit reporting.</div>
+<div class="warn">⚠ Complete your profile before starting review.</div>
+<div class="frow f3"><div><label>First Name <em>*</em></label><input value="Pat" readonly></div><div><label>Last Name <em>*</em></label><input value="Practice" readonly></div><div><label>Date of Birth <em>*</em></label><input type="date" id="dob" class="bad" value="2026-04-15"></div></div>
+<div class="frow"><div><label>Occupation <em>*</em></label><select><option>Physician</option></select></div></div>
+<div class="msec">STATE LICENSES</div>
+<div class="frow f2"><div><label>Licensing State</label><select><option>Pennsylvania</option></select></div><div><label>License Number</label><input value="MD000000 (practice)" readonly></div></div>
+<div class="msec">CERTIFYING BOARDS</div>
+<div class="frow f2"><div><label>Certifying Board</label><select><option>American Board of Internal Medicine</option></select></div><div><label>Board ID</label><input value="000000 (practice)" readonly></div></div>
+<div class="consent" data-act="consent" id="consent"><span class="cb" id="consentBox"></span> I allow OpenEvidence and AKH, Inc. to share my data with the ACCME for purposes of reporting credit.</div>
+</div>
+<div class="mfoot"><span class="obtn" data-act="cancel">Cancel</span><span class="obtn fill" data-act="save" id="saveBtn">Save Changes</span></div>
+</div>
+</div>
+<!-- CLAIM MODAL -->
+<div class="mback" id="mClaim">
+<div class="modal">
+<div class="mbody"><h3 style="margin:2px 0 12px">Review 0.5 Credits</h3>
+<div class="cgrid"><div><small>KEY LEARNING POINT</small><span id="cKey"></span></div><div><small>KNOWLEDGE AREA</small><span id="cSkill"></span><small style="margin-top:12px">APPLICATION TO PRACTICE</small><span id="cApp"></span></div></div>
+</div>
+<div class="mfoot"><span class="obtn" data-act="cback">Back</span><span class="obtn fill" data-act="claim" id="claimBtn">Claim 0.5 Credits</span></div>
+</div>
+</div>
+</main>
+</div>
+</section>
+</div>
+<div id="coach">
+<div><h4>🧭 ClickLearn coach: why this step?</h4><div id="coachBody"></div></div>
+<div><h4>📘 Today's topic</h4><div id="topicBody"></div></div>
+</div>
+<div id="toast"></div>
+<div id="guide" aria-live="polite"><b id="gT"></b><span id="gW"></span></div>
+<div class="overlay show" id="intro">
+<div class="card">
+<h2>⚡ ClickLearn: Claim the CME!</h2>
+<p>OpenEvidence turns the questions you already ask into <b>AMA PRA Category 1 Credit™</b>. Most of us never claim it. Practice the path here (simulated; no real credits, all data fake).</p>
+<ol>
+<li>CMI Handbook → <b>Open Evidence</b> tile</li>
+<li>Sidebar → <b>Learn</b> → CME card → <b>Browse credits</b></li>
+<li>Check <b>today's assigned topic</b> → <b>Go to Review</b> (set up your profile the first time)</li>
+<li><b>Scroll the full activity</b>, pick skill + application, then <b>highlight a sentence</b> (drag across it or click it) as your key learning point</li>
+<li><b>Review Credits</b> → <b>Claim 0.5 Credits</b> → email for credit</li>
+</ol>
+<p class="small">Wrong clicks cost <b>−5</b> and break your streak. Speed bonus at the end.</p>
+<button class="big go" id="startBtn">▶ Start tutorial</button><button class="big alt" id="challengeBtn">⚡ Challenge mode</button>
+<p class="small">The tutorial puts a yellow callout on every next click. Turn it off anytime with the 🎓 button up top.</p>
+</div>
+</div>
+<div class="overlay" id="win">
+<div class="card">
+<div class="winTop"><div class="gj">CREDIT CLAIMED!</div><p>🏆 0.5 practice credit · <b id="wTopic"></b></p></div>
+<div class="winBody">
+<div class="grid3"><div><b id="wScore">0</b>Points</div><div><b id="wTime">0:00</b>Time</div><div><b id="wAcc">100%</b>Accuracy</div><div><b id="wTot">0.0</b>Session credits</div></div>
+<div class="learned" id="wLearned"></div>
+<div class="small" id="wBreak"></div>
+<div class="code" id="wCode">CE-XXXXXX</div>
+<input id="wName" placeholder="✍️ Type your name for credit">
+<a id="mailBtn" href="#">📧 EMAIL FOR CREDIT<small>Opens your email to sohnae@upmc.edu, already filled in. Just hit Send.</small></a>
+<div><button class="big alt" id="copyBtn">📋 Copy code</button><button class="big go" id="againBtn">↻ Next topic</button></div>
+<div class="foot" id="best"></div>
+<div class="foot">Now do it for real: your actual OpenEvidence credits are waiting under Learn → CME.</div>
+</div>
+</div>
+</div>
+<script>
+/* ---------- TOPIC POOL ---------- */
+/* A sentence starting with * is that topic's key point (tagged ⭐ in tutorial mode). */
+const TOPICS=[
+{id:'bone',topic:'Interpretation of bone scan results',domain:'Hematology',
+q:'How should a solitary focal rib uptake on technetium-99m bone scan be distinguished between healing fracture and metastatic disease?',
+paras:[
+{lead:'Most solitary rib hot spots are benign, usually fractures.',s:['Shape, location, clinical context, and anatomic imaging drive the call.']},
+{s:['*SPECT/CT of the lesion is the preferred next step when the planar scan is equivocal.','If CT shows a fracture line or callus and clinical risk is low, a follow-up bone scan at 3–6 months confirms fracture when uptake fades.']},
+{lead:'Pattern clues.',s:['Focal uptake in adjacent ribs lined up in a row suggests trauma.','Uptake that runs lengthwise along the rib favors metastasis.','Multiple new lesions, especially in the spine or sternum, strongly raise concern for metastatic disease.']},
+{lead:'Practical approach.',s:['Correlate with history of trauma, cough, or falls.','Compare with prior imaging whenever available.','Escalate workup when the lesion is elongated, other lesions are present, or the patient has known malignancy with recurrence risk.']}
+],
+refs:['ACR Appropriateness Criteria®: Rib Fractures','SNMMI/EANM practice guideline for bone scintigraphy','Simulated reference list for training']},
+{id:'attr',topic:'ATTR amyloid etiology vs AL (light-chain) differentiation',domain:'Hematology',
+q:'How do you distinguish transthyretin (ATTR) from light-chain (AL) cardiac amyloidosis?',
+paras:[
+{lead:'Rule out AL first — it is the emergency.',s:['AL amyloidosis progresses fast and needs prompt hematologic treatment.']},
+{s:['*Grade 2–3 myocardial uptake on Tc-99m PYP/DPD/HMDP scintigraphy, with no monoclonal protein on serum and urine immunofixation and serum free light chains, establishes cardiac ATTR without biopsy.','A positive scan alone cannot exclude AL, because AL can also show uptake.']},
+{lead:'When a monoclonal protein is present.',s:['Tissue biopsy with amyloid typing (for example, mass spectrometry) is needed.','A monoclonal gammopathy can coexist with ATTR in older adults.']},
+{lead:'After ATTR is confirmed.',s:['TTR gene sequencing separates hereditary (variant) from wild-type disease.','A hereditary result has implications for family screening.']}
+],
+refs:['Gillmore JD et al. Nonbiopsy diagnosis of cardiac transthyretin amyloidosis. Circulation 2016','ASNC/AHA/ASE/EANM/HFSA/ISA/SCMR/SNMMI expert consensus on multimodality imaging in cardiac amyloidosis','Simulated reference list for training']},
+{id:'mri',topic:'Breast MRI screening: contrast vs noncontrast use',domain:'Medical Oncology',
+q:'Is IV contrast required for screening breast MRI, and when is noncontrast MRI appropriate?',
+paras:[
+{lead:'Screening breast MRI is a contrast study.',s:['Supplemental screening MRI for higher-risk women uses IV gadolinium-based contrast; dynamic enhancement is what detects cancer.']},
+{s:['*Noncontrast breast MRI is used to evaluate silicone implant integrity, not to screen for cancer.','Abbreviated (fast) protocols shorten scan time but still use contrast.','Diffusion-weighted noncontrast techniques remain investigational for screening.']},
+{lead:'Safety.',s:['Gadolinium deposition in the brain has been documented without established clinical harm.','Macrocyclic agents are generally preferred.','Screen renal function according to local contrast policy.']}
+],
+refs:['ACR Appropriateness Criteria®: Breast Cancer Screening','ACR recommendations for breast cancer screening in women at higher-than-average risk (2023)','Simulated reference list for training']},
+{id:'ldl',topic:'LDL targets on statins',domain:'Cardiovascular Disease',
+q:'When should therapy be intensified beyond a statin in patients with established ASCVD?',
+paras:[
+{lead:'Thresholds, not just "on a statin."',s:['*For very-high-risk ASCVD on maximally tolerated statin, the 2018 ACC/AHA guideline uses LDL-C ≥70 mg/dL as the threshold to add ezetimibe, then a PCSK9 inhibitor.','A 2022 ACC Expert Consensus Decision Pathway lowered that threshold to ≥55 mg/dL for very-high-risk patients.']},
+{s:['The 2019 ESC/EAS guideline targets LDL-C <55 mg/dL and a ≥50% reduction from baseline in very-high-risk patients.']},
+{lead:'Follow-up.',s:['Recheck lipids 4–12 weeks after starting or changing therapy to assess response and adherence.','Address adherence and statin intolerance before labeling a patient a non-responder.']}
+],
+refs:['2018 AHA/ACC Multisociety Guideline on the Management of Blood Cholesterol','2022 ACC Expert Consensus Decision Pathway on Nonstatin Therapies','2019 ESC/EAS Guidelines for the management of dyslipidaemias']},
+{id:'psa',topic:'PSA velocity trend concern',domain:'Medical Oncology',
+q:'How should a rising PSA trend be evaluated in a man undergoing prostate cancer screening?',
+paras:[
+{lead:'Confirm before you act.',s:['Repeat an unexpectedly high PSA before proceeding, ideally in the same lab.','Consider transient causes: prostatitis, UTI, recent instrumentation, or ejaculation.']},
+{s:['*PSA velocity alone is not recommended as a trigger for biopsy; it adds little beyond the PSA level itself.']},
+{lead:'Next steps.',s:['Prostate MRI before biopsy improves detection of clinically significant cancer and can avoid some biopsies.','Risk calculators and biomarkers can further refine the decision.','Use shared decision-making throughout.']}
+],
+refs:['AUA/SUO Guideline: Early Detection of Prostate Cancer (2023)','NCCN Guidelines®: Prostate Cancer Early Detection','Simulated reference list for training']},
+{id:'ck',topic:"Hashimoto's with elevated CPK",domain:'Endocrinology, Diabetes, and Metabolism',
+q:'How should an elevated CK be interpreted in a patient with hypothyroidism?',
+paras:[
+{lead:'Hypothyroidism commonly raises CK.',s:['Hypothyroid myopathy can raise CK, sometimes to several times the upper limit of normal.','Symptoms range from none to proximal weakness, cramps, and myalgias.']},
+{s:['*Recheck CK after the patient is euthyroid on levothyroxine; persistent elevation warrants workup for another myopathy.']},
+{lead:'Statins.',s:['Hypothyroidism increases statin myopathy risk, so check TSH in patients with statin-associated muscle symptoms.','Rarely, Hoffmann syndrome causes muscle enlargement with stiffness.']}
+],
+refs:['ATA Guidelines for the Treatment of Hypothyroidism (2014)','Simulated reference list for training']},
+{id:'ahre',topic:'Pacemaker atrial fibrillation questions',domain:'Cardiovascular Disease',
+q:'Should device-detected subclinical atrial fibrillation prompt anticoagulation?',
+paras:[
+{lead:'Device-detected AF is not the same as clinical AF.',s:['Device-detected subclinical AF carries a lower stroke risk than clinical AF.','Review the stored electrograms to confirm true AF rather than oversensing or artifact.']},
+{lead:'Trials.',s:['In ARTESiA, apixaban reduced stroke versus aspirin but increased major bleeding.','In NOAH-AFNET 6, edoxaban did not significantly reduce the composite outcome and increased bleeding.']},
+{lead:'Guidance.',s:['*For longer episodes (≥24 hours) with elevated CHA₂DS₂-VASc, anticoagulation is reasonable; shorter episodes call for shared decision-making.']}
+],
+refs:['2023 ACC/AHA/ACCP/HRS Guideline for the Diagnosis and Management of Atrial Fibrillation','ARTESiA trial (NEJM 2024)','NOAH-AFNET 6 trial (NEJM 2023)']}
+];
+const HIST=['ATTR Amyloid Causes','Breast MRI Contrast Options','Heart Transplant Summary','Screening Recommendations','LDL Targets on Statins','Mitral Valve Surgery Timeline','Fall With Head Laceration','PSA Velocity Trend Concern','Pacemaker Atrial Fibrillation Q…',"Hashimoto's With Elevated CPK"];
+const SKILLS=['Diagnosis','Clinical manifestations','Treatment','Prognosis','Prevention','Other'];
+const APPS=["Informed my healthcare team's approach to future cases","Reinforced my healthcare team's existing knowledge or skills/strategy",'Identified areas for future learning'];
+const PEARLS=["OpenEvidence offers CME for questions you've already asked — your search history becomes the syllabus.","Each topic in this simulation is 0.5 credit; claim a few after a busy clinic week.","Add DOB, license, and board ID once so credits can be reported automatically.","Check your DOB on the profile — a birth date in the current year won't match anyone's record.","Key learning point = highlight a passage in the activity. No highlight, no claim.","Download your yearly transcript before license renewal — future you will be grateful.","PA license renewal has specific CME requirements — verify categories with the State Board of Medicine."];
+const URLS={hb:'https://cmihandbook.com',home:'https://www.openevidence.com',learn:'https://www.openevidence.com/learn',cme:'https://www.openevidence.com/cme',profile:'https://www.openevidence.com/cme',review:'https://www.openevidence.com/cme/review',claim:'https://www.openevidence.com/cme/review'};
+const COACH={
+hb:'The CMI Handbook links straight to <b>Open Evidence</b>. Start there.',
+home:'Every question you ask becomes a potential CME activity. Your credits live under <b>Learn</b> in the sidebar (the number next to it is your available credit).',
+learn:'Learn holds Test Prep, Preceptor, Flashcards, and <b>CME</b>. Only the CME card turns past questions into credit.',
+cme:'Pick a topic from <b>Available</b>, then <b>Go to Review</b>. Topics come from your own past questions. Claimed items move to the Claimed tab.',
+profile:'Credit reporting needs identifiers: <b>DOB, license, board ID</b>, plus consent to share with ACCME. <b>Check the DOB</b> — it is set to this year. Fix it, check consent, then Save.',
+review:'Read the <b>full activity</b> (scroll to the references), choose a skill and an application, then <b>highlight a sentence</b> (drag across it or click it) as your key learning point. In tutorial mode the suggested sentence is tagged ⭐ Key point.',
+claim:'Confirm your answers and <b>Claim</b>. At year end, Download Transcript gives you the record for license renewal.'
+};
+const WRONG_MSGS=["Nope — credits don't live there! 🙃","So close… (not close).","The ACCME gods frown. ⛈","That's a lovely button. Wrong one, though."];
+const EMAIL='sohnae@upmc.edu';
+/* ---------- STATE ---------- */
+let S,T,SHOWN=[],round=0,timerId,idleT=0,hintOn=true,soundOn=true;
+let profileSaved=false,available=12.5,claimedTot=0;
+const $=id=>document.getElementById(id);
+const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+function fresh(){return{score:0,wrong:0,good:0,streak:0,stage:'hb',checked:false,dobOK:false,consent:false,unlocked:false,skill:null,app:null,key:null,reflBonus:false,start:null,end:null,done:false,tut:false,flags:{}}}
+/* ---------- AUDIO ---------- */
+let AC;
+function ac(){if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
+function tone(f,d,type='sine',v=.12,t0=0){if(!soundOn)return;try{const a=ac(),o=a.createOscillator(),g=a.createGain(),t=a.currentTime+t0;
+o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.03)}catch(e){}}
+const sGood=()=>{tone(880,.1,'square',.06);tone(1320,.14,'square',.06,.09)};
+const sBig=()=>[784,988,1175,1568].forEach((f,i)=>tone(f,.13,'triangle',.13,i*.07));
+const sBad=()=>{tone(170,.25,'sawtooth',.1);tone(118,.3,'sawtooth',.08,.06)};
+const sPing=()=>{tone(1046,.09,'sine',.14);tone(1046,.09,'sine',.14,.14)};
+const sWin=()=>[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,.18,'square',.07,i*.11));
+/* ---------- NAV ---------- */
+function go(stage){
+S.stage=stage;
+$('s-hb').classList.toggle('on',stage==='hb');
+$('s-oe').classList.toggle('on',stage!=='hb');
+const view={home:'home',learn:'learn',cme:'cme',profile:'cme',review:'review',claim:'review'}[stage];
+document.querySelectorAll('.sub-oe').forEach(v=>v.style.display=v.id==='v-'+view?'block':'none');
+$('sideLearn').classList.toggle('sel',['learn','cme','profile','review','claim'].includes(stage));
+$('mProfile').classList.toggle('show',stage==='profile');
+$('mClaim').classList.toggle('show',stage==='claim');
+$('url').textContent=URLS[stage];
+$('coachBody').innerHTML=COACH[stage];
+if(stage==='review')setTimeout(checkScroll,50);
+hud();
+}
+/* ---------- RENDER ---------- */
+function renderStatic(){
+$('histList').innerHTML=HIST.map(h=>`<div class="hist" data-act="decoy" data-msg="History reopens the conversation — credit is claimed in Learn → CME.">${h}</div>`).join('');
+$('skillOpts').innerHTML=SKILLS.map((s,i)=>`<div class="rad" data-act="skill" data-i="${i}"><span class="o"></span>${s}</div>`).join('');
+$('appOpts').innerHTML=APPS.map((s,i)=>`<div class="rad" data-act="app" data-i="${i}"><span class="o"></span>${s}</div>`).join('');
+}
+function renderCredits(){
+const a=available.toFixed(1);$('sideCred').textContent=a;$('availBig').textContent=a;$('learnCred').textContent=a+' credits available';
+$('claimedStat').textContent=claimedTot.toFixed(1);
+$('profStatus').innerHTML=profileSaved?'✅ Profile complete. Credits report automatically.':'ⓘ Add your credentials to enable automatic reporting.';
+}
+function renderRows(){
+$('topicRows').innerHTML=SHOWN.map(t=>{const on=S.checked&&t.id===T.id;
+return `<tr class="${on?'sel':''}"><td><span class="cb ${on?'on':''}" data-act="chk" data-id="${t.id}">${on?'✓':''}</span></td><td>0.5</td><td>${t.topic}</td><td>${t.domain}</td></tr>`}).join('');
+$('selCred').textContent=(S.checked?'0.5':'0.0')+' credits selected';
+$('goRev').classList.toggle('dis',!S.checked);
+}
+function renderArticle(){
+$('rvTopic').textContent=T.topic;
+$('art').innerHTML=`<div class="asked">You had asked about <b>${T.topic}</b>.</div>
+<div class="ce"><span>CONTINUING EDUCATION (SIMULATED)</span><span class="dom">Content Domain: ${T.domain}</span></div>
+<h3>${T.q}</h3>`+T.paras.map(p=>`<p>${p.lead?'<b>'+p.lead+'</b> ':''}${p.s.map(x=>{const k=x[0]==='*',t=k?x.slice(1):x;
+return `<span class="sent" data-act="sent" ${k?'data-key="1"':''}>${t}</span>`}).join(' ')}</p>`).join('')+
+`<p style="font-family:Segoe UI;font-size:11px;color:#999">Training content for workflow practice. Verify clinical details against current sources.</p>
+<div class="refs"><b style="color:#333">References</b><ol id="refList">${T.refs.map(r=>'<li><b>'+r+'</b></li>').join('')}</ol></div><div style="height:260px"></div>`;
+$('art').scrollTop=0;
+}
+function renderReview(){
+$('rbox').classList.toggle('locked',!S.unlocked);
+document.querySelectorAll('[data-act="skill"]').forEach(el=>el.classList.toggle('on',+el.dataset.i===S.skill));
+document.querySelectorAll('[data-act="app"]').forEach(el=>el.classList.toggle('on',+el.dataset.i===S.app));
+const kb=$('keyShow');
+if(S.key){kb.innerHTML='<b>✍️ Your key learning point:</b> <q></q><div class="small">To change it, highlight a different sentence.</div>';kb.querySelector('q').textContent=S.key}
+else kb.innerHTML='Nothing highlighted yet.<span class="findk" data-act="findkey">📍 Show me where</span>';
+kb.classList.toggle('set',!!S.key);
+kb.classList.toggle('need',S.unlocked&&S.skill!==null&&S.app!==null&&!S.key);
+$('art').classList.toggle('has-key',!!S.key);
+const ready=S.unlocked&&S.skill!==null&&S.app!==null&&S.key;
+$('revBtn').classList.toggle('dis',!ready);$('revBtn').classList.toggle('ready',!!ready);
+}
+function renderTopicCard(){
+const keys=T.paras.flatMap(p=>p.s).filter(x=>x[0]==='*').map(x=>x.slice(1));
+$('topicBody').innerHTML=`<b>${T.topic}</b> <span class="small">(${T.domain})</span><br><span class="k2">ASSIGNED</span>Find this topic in the Available list and claim it.<br><span class="k2">PEARL</span>${keys[0]||''}`;
+}
+function hud(){
+$('score').textContent=S.score;$('wrong').textContent=S.wrong;$('streak').textContent=S.streak;
+const rv=!S.unlocked?'Step 6: <em>scroll</em> the full activity to the end.'
+:(S.skill===null||S.app===null)?'Step 7: pick a <em>skill</em> and an <em>application</em>.'
+:!S.key?'Step 8: <em>highlight a sentence</em> in the activity (drag or click) as your key learning point.'
+:'Step 9: click <em>Review Credits</em>.';
+const m={hb:'Step 1: open the <em>Open Evidence</em> tile.',home:'Step 2: click <em>Learn</em> in the sidebar.',learn:'Step 3: CME card → <em>Browse credits</em>.',
+cme:`Step 4: check <em>${T.topic}</em>, then <em>Go to Review</em>.`,profile:'Step 5: fix the <em>DOB</em>, check <em>consent</em>, <em>Save Changes</em>.',
+review:rv,claim:'Final step: <em>Claim 0.5 Credits</em>!'};
+$('mission').innerHTML=S.done?'Done! 🎉':m[S.stage];
+hint();
+// Tutorial: once skill + application are picked, bring the key sentence into view.
+if(hintOn&&!S.done&&S.stage==='review'&&S.unlocked&&S.skill!==null&&S.app!==null&&!S.key&&!S.flags.keyNav){S.flags.keyNav=1;setTimeout(findKey,450)}
+}
+function nextTarget(){
+switch(S.stage){
+case 'hb':return $('t-oe');case 'home':return $('sideLearn');case 'learn':return $('browseBtn');
+case 'cme':return S.checked?$('goRev'):document.querySelector(`[data-act="chk"][data-id="${T.id}"]`);
+case 'profile':return !S.dobOK?$('dob'):!S.consent?$('consentBox'):$('saveBtn');
+case 'review':if(!S.unlocked)return $('refList');if(S.skill===null)return document.querySelector('[data-act="skill"]');
+if(S.app===null)return document.querySelector('[data-act="app"]');if(!S.key)return $('art').querySelector('.sent[data-key]')||$('art').querySelector('.sent');return $('revBtn');
+case 'claim':return $('claimBtn');
+}
+}
+function hint(){document.querySelectorAll('.pulse').forEach(e=>e.classList.remove('pulse'));
+if((hintOn||idleT>=12)&&!S.done){const t=nextTarget();t&&t.classList.add('pulse')}}
+/* ---------- TICKER ---------- */
+let tickI=0;
+function tick(){const el=$('tickTxt');el.style.opacity=0;setTimeout(()=>{el.textContent=PEARLS[tickI++%PEARLS.length];el.style.opacity=1},400)}
+setInterval(tick,7000);
+/* ---------- FEEDBACK ---------- */
+function floatTxt(e,txt,cls){const d=document.createElement('div');d.className='float '+cls;d.textContent=txt;
+d.style.left=(e.clientX-10)+'px';d.style.top=(e.clientY-24)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1150)}
+let toastT;
+function toast(msg,cls=''){const t=$('toast');t.innerHTML=msg;t.className='show '+cls;clearTimeout(toastT);toastT=setTimeout(()=>t.className='',2300)}
+function award(pts,e,msg,big){S.streak++;S.good++;const b=S.streak>=3?5:0;S.score+=pts+b;
+floatTxt(e,'+'+(pts+b)+(b?' 🔥':''),'good');toast((big?'💥 ':'✅ ')+msg+(b?` · streak +${b}`:''),'good');big?sBig():sGood()}
+function once(flag,pts,e,msg,big){if(S.flags[flag])return;S.flags[flag]=1;award(pts,e,msg,big)}
+function wrong(e,msg){S.wrong++;S.streak=0;S.score=Math.max(0,S.score-5);floatTxt(e,'−5','bad');
+toast('❌ '+(msg||WRONG_MSGS[Math.floor(Math.random()*WRONG_MSGS.length)]),'bad');sBad();
+const ep=$('app');ep.classList.remove('shake');void ep.offsetWidth;ep.classList.add('shake')}
+function confetti(){const cols=['#ffe46b','#ff4fa3','#7cf3ff','#e0623a','#ff8a3d','#7b3fb3'];
+for(let i=0;i<160;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=cols[i%cols.length];document.body.appendChild(c);
+const dx=(Math.random()-.5)*300,dur=1800+Math.random()*1800;
+c.animate([{transform:'translate(0,0)'},{transform:`translate(${dx}px,${innerHeight+60}px) rotate(${720*Math.random()}deg)`}],{duration:dur});setTimeout(()=>c.remove(),dur)}}
+const center=el=>{const r=el.getBoundingClientRect();return{clientX:r.left+r.width/2,clientY:r.top+r.height/2}};
+/* ---------- TIMER ---------- */
+const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+const secs=()=>S.start?Math.floor(((S.end||Date.now())-S.start)/1000):0;
+function startTimer(){if(S.start)return;S.start=Date.now();S.tut=hintOn;timerId=setInterval(()=>{$('timer').textContent=fmt(secs());idleT++;if(idleT===12)hint()},1000)}
+/* ---------- SCROLL GATE ---------- */
+function checkScroll(){const a=$('art');if(S.unlocked||S.stage!=='review')return;
+const ref=$('refList');if(!ref)return;
+if(ref.getBoundingClientRect().bottom<=a.getBoundingClientRect().bottom+4){S.unlocked=true;startTimer();idleT=0;
+award(10,center($('rbox')),'Full activity reviewed — form unlocked');renderReview();hud()}}
+$('art').addEventListener('scroll',checkScroll);
+/* ---------- TUTORIAL CALLOUT ---------- */
+function setTutorial(on){hintOn=on;const b=$('hintBtn');b.textContent='🎓 Tutorial: '+(on?'on':'off');b.classList.toggle('on',on);
+document.body.classList.toggle('tut',on);if(on&&S.start)S.tut=true;hud()}
+function guideInfo(){
+const el=nextTarget();if(!el)return null;
+switch(S.stage){
+case 'hb':return{el,t:'Click the Open Evidence tile',w:'The CMI Handbook links straight to OpenEvidence.'};
+case 'home':return{el,t:'Click Learn in the sidebar',w:'The number beside it is the credit you have not claimed yet.'};
+case 'learn':return{el,t:'Click Browse credits',w:'Only the CME card turns your past questions into credit.'};
+case 'cme':return S.checked?{el,t:'Click Go to Review',w:profileSaved?'This opens the activity for your topic.':'The first time, it asks you to set up your profile.'}
+:{el,t:`Check the box for “${T.topic}”`,w:"That's today's assigned topic. Other rows cost points."};
+case 'profile':return !S.dobOK?{el,t:'Fix the Date of Birth',w:'It is set to this year. Any birth year up to 2008 works.'}
+:!S.consent?{el,t:'Check the ACCME consent box',w:'Credits can only be reported with your consent.'}
+:{el,t:'Click Save Changes',w:'You only set up the profile once.'};
+case 'review':
+if(!S.unlocked)return{el,side:$('art'),t:'👈 Scroll this article to the very end',w:'The review form unlocks once you reach the references.'};
+if(S.skill===null)return{el,t:'Pick the skill this activity reinforced',w:'Any option counts. Choose the one that fits.'};
+if(S.app===null)return{el,t:'Pick how it applies to your practice',w:'Any option counts.'};
+if(!S.key)return{el,t:'✍️ Highlight this sentence',w:'Drag across it or just click it. A key learning point is required to claim.'};
+return{el,below:true,t:'Click Review Credits',w:'You will confirm your answers on the next screen.'};
+case 'claim':return{el,t:'Click Claim 0.5 Credits',w:'Last click. The credit moves to your Claimed tab.'};
+}
+return null;
+}
+function placeGuide(){
+const g=$('guide'),info=hintOn&&S&&!S.done&&!$('intro').classList.contains('show')?guideInfo():null,
+cr=info&&info.el.isConnected?info.el.getClientRects():[];
+if(!cr.length){if(g.classList.contains('show'))g.classList.remove('show');return}
+const G=14,vt=$('banner').getBoundingClientRect().bottom+8,vb=innerHeight-8,r=cr[0];
+let t=info.t,w=info.w,place='',ax,ay;
+if(info.side){const a=info.side.getBoundingClientRect();place='right';ax=a.right;ay=(Math.max(a.top,vt)+Math.min(a.bottom,vb))/2}
+else{let lo=vt,hi=vb;const art=$('art');
+if(art.contains(info.el)){const a=art.getBoundingClientRect();lo=Math.max(lo,a.top);hi=Math.min(hi,a.bottom)}
+ax=r.left+r.width/2;
+if(r.top>hi-8){place='above';ay=hi;t='⬇ '+t;w='Scroll down to find it. '+w}
+else if(r.bottom<lo+8){place='below';ay=lo;t='⬆ '+t;w='Scroll up to find it. '+w}}
+if(g.dataset.k!==t+w){g.dataset.k=t+w;$('gT').textContent=t;$('gW').textContent=w}
+const gw=g.offsetWidth,gh=g.offsetHeight;
+if(!place){place=(info.below&&r.bottom+G+gh<=vb)||r.top-G-gh<vt?'below':'above';ay=place==='above'?r.top:r.bottom}
+let x,y;
+if(place==='right'){x=ax+G;y=Math.min(Math.max(ay-gh/2,vt),vb-gh);g.style.setProperty('--ay',Math.min(Math.max(ay-y,16),gh-16)+'px')}
+else{x=Math.min(Math.max(ax-gw/2,8),innerWidth-gw-8);y=place==='above'?ay-gh-G:ay+G;g.style.setProperty('--ax',Math.min(Math.max(ax-x,18),gw-18)+'px')}
+g.style.transform=`translate(${Math.round(x)}px,${Math.round(y)}px)`;
+const cn='show '+place;if(g.className!==cn)g.className=cn;
+}
+/* ---------- KEY LEARNING POINT ---------- */
+function findKey(){const a=$('art'),el=a.querySelector('.sent.k')||a.querySelector('.sent[data-key]')||a.querySelector('.sent');if(!el)return;
+el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),2400)}
+function markKey(els,e){
+if(S.stage!=='review'||S.done||!els.length)return;
+document.querySelectorAll('.sent.k').forEach(x=>x.classList.remove('k'));
+els.forEach(x=>x.classList.add('k'));
+S.key=els.map(x=>x.textContent).join(' ');
+once('key',15,e,'Key learning point highlighted');renderReview()}
+// Real highlighting: drag across text in the activity and it snaps to the sentence(s) you touched.
+document.addEventListener('mouseup',e=>{
+if(!S||S.done||S.stage!=='review')return;
+const sel=getSelection();if(!sel.rangeCount||sel.isCollapsed)return;
+const r=sel.getRangeAt(0),art=$('art');if(!r.intersectsNode(art))return;
+const hit=[...art.querySelectorAll('.sent')].filter(s=>{if(!r.intersectsNode(s))return false;
+const x=document.createRange();x.selectNodeContents(s);
+if(r.compareBoundaryPoints(Range.START_TO_START,x)>0)x.setStart(r.startContainer,r.startOffset);
+if(r.compareBoundaryPoints(Range.END_TO_END,x)<0)x.setEnd(r.endContainer,r.endOffset);
+return x.toString().trim().length>0});
+sel.removeAllRanges();
+if(!hit.length)return;
+if(hit.length>3){toast('✍️ Highlight one key sentence (three at most), not the whole article.','bad');return}
+startTimer();idleT=0;markKey(hit,e);hud()});
+/* ---------- CLICKS ---------- */
+$('app').addEventListener('click',e=>{
+const el=e.target.closest('[data-act]');if(!el||S.done)return;
+startTimer();idleT=0;const act=el.dataset.act;
+switch(act){
+case 'oe': award(10,e,'OpenEvidence launched');go('home');break;
+case 'learn': if(S.stage==='home'){award(10,e,'Learn hub opened');go('learn')}else toast('You are already in Learn 👍');break;
+case 'browse': award(10,e,'CME dashboard — credits live here');go('cme');break;
+case 'chk':
+if(el.dataset.id!==T.id){wrong(e,`Not today's assignment — find "${T.topic}".`);break}
+S.checked=!S.checked;if(S.checked)once('chk',10,e,'Topic selected (0.5 credit)');renderRows();break;
+case 'profile':
+if(profileSaved){toast('Profile already complete ✅');break}
+once('prof',5,e,'Smart — set up the profile first');go('profile');break;
+case 'goreview':
+if(!S.checked){wrong(e,'Select a topic first.');break}
+if(!profileSaved){once('gr',10,e,'Profile required before review');go('profile');break}
+award(10,e,'Review opened');renderArticle();renderReview();go('review');break;
+case 'consent':
+S.consent=!S.consent;$('consentBox').classList.toggle('on',S.consent);$('consentBox').textContent=S.consent?'✓':'';
+if(S.consent)once('cons',5,e,'ACCME reporting consent checked');break;
+case 'save':{
+const y=+($('dob').value||'0').slice(0,4);
+if(!y||y>2008){wrong(e,'Check your Date of Birth — it is set to this year.');$('dob').focus();break}
+if(!S.consent){wrong(e,'Check the ACCME consent box so credits can be reported.');break}
+profileSaved=true;renderCredits();award(10,e,'Profile saved — automatic reporting on',true);
+if(S.checked){renderArticle();renderReview();go('review')}else go('cme');break}
+case 'cancel': toast('Profile not saved — you will need it before review.');go('cme');break;
+case 'sent': markKey([el],e);break;
+case 'findkey': findKey();break;
+case 'skill': case 'app':
+if(!S.unlocked){wrong(e,'Scroll through the full activity first.');break}
+S[act]=+el.dataset.i;once(act,5,e,act==='skill'?'Skill selected':'Application selected');renderReview();break;
+case 'revcred':
+if(!S.unlocked){wrong(e,'Review the full activity first (scroll to the end).');break}
+if(S.skill===null||S.app===null){wrong(e,'Both required selections are needed.');break}
+if(!S.key){wrong(e,'Highlight your key learning point first: drag across or click the flashing sentence.');findKey();break}
+if(!S.reflBonus&&$('refl').value.trim().length>=10){S.reflBonus=true;S.score+=5;toast('📝 Reflection bonus +5','good')}
+$('cKey').textContent=S.key;$('cSkill').textContent=SKILLS[S.skill];$('cApp').textContent=APPS[S.app];
+award(10,e,'Almost there!');go('claim');break;
+case 'cback': go('review');break;
+case 'claim': award(25,e,'0.5 credit claimed!',true);finish();break;
+case 'decoy': wrong(e,el.dataset.msg);break;
+}
+hud();
+});
+$('dob').addEventListener('change',e=>{const y=+($('dob').value||'0').slice(0,4);
+S.dobOK=y>1900&&y<=2008;$('dob').classList.toggle('bad',!S.dobOK);
+if(S.dobOK)once('dob',5,center($('dob')),'DOB fixed — now it matches a real person');hud()});
+/* ---------- FINISH ---------- */
+function makeCode(name){const s=`${S.score}|${S.wrong}|${secs()}|${name}|${T.id}|${new Date().toISOString().slice(0,10)}`;
+let h=5381;for(const ch of s)h=((h<<5)+h+ch.charCodeAt(0))>>>0;return 'CE-'+h.toString(36).toUpperCase().padStart(7,'0').slice(-6)+'-'+S.score}
+function finish(){
+S.done=true;S.end=Date.now();clearInterval(timerId);
+available=Math.max(0,available-.5);claimedTot+=.5;renderCredits();
+const t=secs(),bonus=Math.max(0,120-t);S.score+=bonus;hud();
+$('mClaim').classList.remove('show');
+$('wTopic').textContent=T.topic;$('wScore').textContent=S.score;$('wTime').textContent=fmt(t);$('wTot').textContent=claimedTot.toFixed(1);
+$('wAcc').textContent=Math.round(100*S.good/Math.max(1,S.good+S.wrong))+'%';
+$('wLearned').innerHTML=`<b>📘 Your key learning point:</b><br>${S.key}<br><b>Knowledge area:</b> ${SKILLS[S.skill]}`;
+$('wBreak').textContent=`Speed bonus +${bonus} · Wrong clicks ${S.wrong} · Reflection bonus ${S.reflBonus?'yes':'no'} · ${S.tut?'Tutorial':'Challenge'} mode`;
+let best=0;try{best=+(localStorage.getItem('clickLearnCmeBest')||0);if(S.score>best)localStorage.setItem('clickLearnCmeBest',S.score)}catch(e){}
+$('best').textContent=S.score>best?`🌟 New personal best! (previous: ${best})`:`Personal best: ${best}`;
+updateMail();sWin();confetti();setTimeout(()=>{$('win').classList.add('show');$('wName').focus()},500);
+}
+function updateMail(){
+const name=$('wName').value.trim()||'(name not entered)',code=makeCode(name);$('wCode').textContent=code;
+const body=['ClickLearn: Claim the CME! — completed','',`Name: ${name}`,`Completion code: ${code}`,`Score: ${S.score}`,`Mode: ${S.tut?'Tutorial (guided)':'Challenge (no tutorial)'}`,
+`Topic: ${T.topic}`,`Key learning point: ${S.key}`,`Wrong clicks: ${S.wrong}`,`Time: ${fmt(secs())}`,`Session practice credits: ${claimedTot.toFixed(1)}`,`Date: ${new Date().toLocaleString()}`].join('\n');
+$('mailBtn').href=`mailto:${EMAIL}?subject=${encodeURIComponent('ClickLearn CME credit – '+name+' – '+code)}&body=${encodeURIComponent(body)}`;
+}
+$('wName').addEventListener('input',updateMail);
+$('mailBtn').addEventListener('click',e=>{if(!$('wName').value.trim()){e.preventDefault();$('wName').focus();$('wName').style.borderColor='#d32f2f';toast('✍️ Add your name first so you get credit!','bad');sBad()}else sGood()});
+$('copyBtn').onclick=()=>{const code=$('wCode').textContent,ok=()=>toast('Code copied 📋','good'),
+manual=()=>{const r=document.createRange();r.selectNodeContents($('wCode'));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Code selected. Press Ctrl+C to copy it.')};
+navigator.clipboard?navigator.clipboard.writeText(code).then(ok,manual):manual()};
+/* ---------- ROUNDS ---------- */
+function newRound(){
+clearInterval(timerId);S=fresh();idleT=0;round++;$('timer').textContent='0:00';
+T=TOPICS[Math.floor(Math.random()*TOPICS.length)];
+SHOWN=shuffle([T,...shuffle(TOPICS.filter(x=>x.id!==T.id)).slice(0,4)]);
+$('win').classList.remove('show');$('wName').style.borderColor='';$('refl').value='';
+$('dob').value='2026-04-15';$('dob').classList.add('bad');$('consentBox').classList.remove('on');$('consentBox').textContent='';
+renderCredits();renderRows();renderTopicCard();renderReview();go('hb');tick();window.scrollTo({top:0});
+}
+function closeIntro(tut){try{ac()}catch(e){}sPing();setTutorial(tut);$('intro').classList.remove('show')}
+$('startBtn').onclick=()=>closeIntro(true);
+$('challengeBtn').onclick=()=>closeIntro(false);
+$('againBtn').onclick=()=>{newRound();sGood();toast('📚 New topic to claim!')};
+$('resetBtn').onclick=()=>{newRound();toast('📚 New topic to claim!')};
+$('hintBtn').onclick=()=>{setTutorial(!hintOn);toast(hintOn?'🎓 Tutorial on: follow the yellow callouts.':'⚡ Tutorial off: hints only appear if you sit idle.')};
+$('sndBtn').onclick=()=>{soundOn=!soundOn;$('sndBtn').textContent=soundOn?'🔊 Sound':'🔇 Muted';if(soundOn)sGood()};
+renderStatic();newRound();setTutorial(true);$('startBtn').focus();
+(function guideLoop(){placeGuide();requestAnimationFrame(guideLoop)})();
+</script>
+</body>
+</html>
