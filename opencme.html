@@ -172,7 +172,7 @@ table.tt{width:100%;border-collapse:collapse;margin-top:6px;border:1px solid #ee
 .learned b{color:#5a2690}
 .code{font-family:Consolas,monospace;font-size:22px;letter-spacing:2px;background:#0b2f45;color:#ffe46b;border-radius:10px;padding:8px;margin:8px 0}
 #wName{width:100%;padding:12px;border:2px solid #1a6fd0;border-radius:10px;font-size:16px;margin:6px 0;text-align:center}
-#mailBtn{display:block;width:100%;font-size:26px;font-weight:900;letter-spacing:1px;padding:18px;border-radius:14px;color:#fff;text-decoration:none;background:linear-gradient(90deg,#1a6fd0,#7b3fb3,#ff4fa3);background-size:200% 100%;animation:shine 3s linear infinite,bounce 1.2s ease-in-out infinite;box-shadow:0 8px 24px rgba(26,111,208,.45);margin:8px 0}
+#mailBtn{display:block;width:100%;font-size:20px;line-height:1.2;font-weight:900;letter-spacing:1px;padding:18px;border-radius:14px;color:#fff;text-decoration:none;background:linear-gradient(90deg,#1a6fd0,#7b3fb3,#ff4fa3);background-size:200% 100%;animation:shine 3s linear infinite,bounce 1.2s ease-in-out infinite;box-shadow:0 8px 24px rgba(26,111,208,.45);margin:8px 0}
 @keyframes bounce{50%{transform:scale(1.04)}}
 #mailBtn small{display:block;font-size:12px;font-weight:600;letter-spacing:0;opacity:.95}
 .foot{font-size:10.5px;color:#678;margin-top:6px}
@@ -370,11 +370,11 @@ table.tt{width:100%;border-collapse:collapse;margin-top:6px;border:1px solid #ee
 <li>Sidebar → <b>Learn</b> → CME card → <b>Browse credits</b></li>
 <li>Check <b>today's assigned topic</b> → <b>Go to Review</b> (set up your profile the first time)</li>
 <li><b>Scroll the full activity</b>, pick skill + application, then <b>highlight a sentence</b> (drag across it or click it) as your key learning point</li>
-<li><b>Review Credits</b> → <b>Claim 0.5 Credits</b> → email for credit</li>
+<li><b>Review Credits</b> → <b>Claim 0.5 Credits</b> → email jaadoc@gmail.com for completion verification</li>
 </ol>
 <p class="small">Wrong clicks cost <b>−5</b> and break your streak. Speed bonus at the end.</p>
-<button class="big go" id="startBtn">▶ Start tutorial</button><button class="big alt" id="challengeBtn">⚡ Challenge mode</button>
-<p class="small">The tutorial puts a yellow callout on every next click. Turn it off anytime with the 🎓 button up top.</p>
+<button class="big go" id="startBtn">▶ Start tutorial</button>
+<p class="small">The tutorial puts a yellow callout on every next click. When you're ready for challenge mode, turn it off with the 🎓 button up top.</p>
 </div>
 </div>
 <div class="overlay" id="win">
@@ -385,8 +385,8 @@ table.tt{width:100%;border-collapse:collapse;margin-top:6px;border:1px solid #ee
 <div class="learned" id="wLearned"></div>
 <div class="small" id="wBreak"></div>
 <div class="code" id="wCode">CE-XXXXXX</div>
-<input id="wName" placeholder="✍️ Type your name for credit">
-<a id="mailBtn" href="#">📧 EMAIL FOR CREDIT<small>Opens your email to sohnae@upmc.edu, already filled in. Just hit Send.</small></a>
+<input id="wName" placeholder="✍️ Type your name for completion verification">
+<a id="mailBtn" href="#">📧 EMAIL FOR COMPLETION VERIFICATION<small>Opens your email to jaadoc@gmail.com, already filled in. Just hit Send.</small></a>
 <div><button class="big alt" id="copyBtn">📋 Copy code</button><button class="big go" id="againBtn">↻ Next topic</button></div>
 <div class="foot" id="best"></div>
 <div class="foot">Now do it for real: your actual OpenEvidence credits are waiting under Learn → CME.</div>
@@ -471,7 +471,7 @@ review:'Read the <b>full activity</b> (scroll to the references), choose a skill
 claim:'Confirm your answers and <b>Claim</b>. At year end, Download Transcript gives you the record for license renewal.'
 };
 const WRONG_MSGS=["Nope — credits don't live there! 🙃","So close… (not close).","The ACCME gods frown. ⛈","That's a lovely button. Wrong one, though."];
-const EMAIL='sohnae@upmc.edu';
+const EMAIL='jaadoc@gmail.com';
 /* ---------- STATE ---------- */
 let S,T,SHOWN=[],round=0,timerId,idleT=0,hintOn=true,soundOn=true;
 let profileSaved=false,available=12.5,claimedTot=0;
@@ -741,10 +741,10 @@ function updateMail(){
 const name=$('wName').value.trim()||'(name not entered)',code=makeCode(name);$('wCode').textContent=code;
 const body=['ClickLearn: Claim the CME! — completed','',`Name: ${name}`,`Completion code: ${code}`,`Score: ${S.score}`,`Mode: ${S.tut?'Tutorial (guided)':'Challenge (no tutorial)'}`,
 `Topic: ${T.topic}`,`Key learning point: ${S.key}`,`Wrong clicks: ${S.wrong}`,`Time: ${fmt(secs())}`,`Session practice credits: ${claimedTot.toFixed(1)}`,`Date: ${new Date().toLocaleString()}`].join('\n');
-$('mailBtn').href=`mailto:${EMAIL}?subject=${encodeURIComponent('ClickLearn CME credit – '+name+' – '+code)}&body=${encodeURIComponent(body)}`;
+$('mailBtn').href=`mailto:${EMAIL}?subject=${encodeURIComponent('ClickLearn CME completion verification – '+name+' – '+code)}&body=${encodeURIComponent(body)}`;
 }
 $('wName').addEventListener('input',updateMail);
-$('mailBtn').addEventListener('click',e=>{if(!$('wName').value.trim()){e.preventDefault();$('wName').focus();$('wName').style.borderColor='#d32f2f';toast('✍️ Add your name first so you get credit!','bad');sBad()}else sGood()});
+$('mailBtn').addEventListener('click',e=>{if(!$('wName').value.trim()){e.preventDefault();$('wName').focus();$('wName').style.borderColor='#d32f2f';toast('✍️ Add your name first so your completion can be verified!','bad');sBad()}else sGood()});
 $('copyBtn').onclick=()=>{const code=$('wCode').textContent,ok=()=>toast('Code copied 📋','good'),
 manual=()=>{const r=document.createRange();r.selectNodeContents($('wCode'));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Code selected. Press Ctrl+C to copy it.')};
 navigator.clipboard?navigator.clipboard.writeText(code).then(ok,manual):manual()};
@@ -759,7 +759,6 @@ renderCredits();renderRows();renderTopicCard();renderReview();go('hb');tick();wi
 }
 function closeIntro(tut){try{ac()}catch(e){}sPing();setTutorial(tut);$('intro').classList.remove('show')}
 $('startBtn').onclick=()=>closeIntro(true);
-$('challengeBtn').onclick=()=>closeIntro(false);
 $('againBtn').onclick=()=>{newRound();sGood();toast('📚 New topic to claim!')};
 $('resetBtn').onclick=()=>{newRound();toast('📚 New topic to claim!')};
 $('hintBtn').onclick=()=>{setTutorial(!hintOn);toast(hintOn?'🎓 Tutorial on: follow the yellow callouts.':'⚡ Tutorial off: hints only appear if you sit idle.')};
