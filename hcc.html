@@ -125,10 +125,20 @@ h2.tv{color:var(--green);font-weight:400;font-size:20px;margin:6px 0}
 .learned b{color:#5a2690}
 .code{font-family:Consolas,monospace;font-size:22px;letter-spacing:2px;background:#0b2f45;color:#ffe46b;border-radius:10px;padding:8px;margin:8px 0}
 #wName{width:100%;padding:12px;border:2px solid #1a6fd0;border-radius:10px;font-size:16px;margin:6px 0;text-align:center}
-#mailBtn{display:block;width:100%;font-size:26px;font-weight:900;letter-spacing:1px;padding:18px;border-radius:14px;color:#fff;text-decoration:none;background:linear-gradient(90deg,#1a6fd0,#7b3fb3,#ff4fa3);background-size:200% 100%;animation:shine 3s linear infinite,bounce 1.2s ease-in-out infinite;box-shadow:0 8px 24px rgba(26,111,208,.45);margin:8px 0}
+#mailBtn{display:block;width:100%;font-size:20px;line-height:1.2;font-weight:900;letter-spacing:1px;padding:18px;border-radius:14px;color:#fff;text-decoration:none;background:linear-gradient(90deg,#1a6fd0,#7b3fb3,#ff4fa3);background-size:200% 100%;animation:shine 3s linear infinite,bounce 1.2s ease-in-out infinite;box-shadow:0 8px 24px rgba(26,111,208,.45);margin:8px 0}
 @keyframes bounce{50%{transform:scale(1.04)}}
 #mailBtn small{display:block;font-size:12px;font-weight:600;letter-spacing:0;opacity:.95}
 .foot{font-size:10.5px;color:#678;margin-top:6px}
+/* tutorial mode: a callout that points at the next click */
+#hintBtn.on{background:rgba(255,228,107,.16);border-color:#ffe46b;color:#ffe46b}
+#guide{position:fixed;left:0;top:0;z-index:190;max-width:290px;background:#ffe46b;color:#2a1f00;border:2px solid #c99700;border-radius:12px;padding:9px 13px 10px;box-shadow:0 10px 28px rgba(0,0,0,.3);pointer-events:none;opacity:0;transition:opacity .15s}
+#guide.show{opacity:1}
+#guide b{display:block;font-size:13.5px;line-height:1.3}
+#guide span{display:block;font-size:11.5px;line-height:1.35;margin-top:3px;color:#5a4600}
+#guide::after{content:"";position:absolute;left:var(--ax,50%);width:14px;height:14px;background:#ffe46b;border:2px solid #c99700;transform:translateX(-50%) rotate(45deg)}
+#guide.above::after{bottom:-9px;border-top:0;border-left:0}
+#guide.below::after{top:-9px;border-bottom:0;border-right:0}
+@media (prefers-reduced-motion:reduce){#guide{transition:none}}
 </style>
 </head>
 <body>
@@ -145,7 +155,7 @@ h2.tv{color:var(--green);font-weight:400;font-size:20px;margin:6px 0}
 <div class="stat"><b id="streak">0</b><span>🔥 Streak</span></div>
 <div class="stat"><b id="roundN">1</b><span>Round</span></div>
 <div id="mission"></div>
-<button class="bbtn ghost" id="hintBtn">💡 Hint: off</button>
+<button class="bbtn ghost on" id="hintBtn" title="Tutorial mode puts a yellow callout on every next click. Turn it off for challenge mode.">🎓 Tutorial: on</button>
 <button class="bbtn ghost" id="sndBtn">🔊 Sound</button>
 <button class="bbtn" id="resetBtn">↻ New patient</button>
 </div>
@@ -273,6 +283,7 @@ h2.tv{color:var(--green);font-weight:400;font-size:20px;margin:6px 0}
 </div>
 </div>
 <div id="toast"></div>
+<div id="guide" aria-live="polite"><b id="gT"></b><span id="gW"></span></div>
 <div class="overlay show" id="intro">
 <div class="card">
 <svg width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="32" fill="#ffe46b"/><path d="M40 10L22 38h12l-4 22 18-28H36z" fill="#c8102e"/></svg>
@@ -282,10 +293,11 @@ h2.tv{color:var(--green);font-weight:400;font-size:20px;margin:6px 0}
 <li>Click the <b>Chronic Condition Refresh</b> advisory <b>(+10)</b></li>
 <li>Click each <b>condition name</b> to review evidence and learn the dx <b>(+10)</b></li>
 <li>Click <b>Add to Problem List</b> <b>(+25)</b> · bonus: Add Visit Diagnosis <b>(+5)</b></li>
-<li>Hit <b>Accept</b>, then <b>email for credit</b></li>
+<li>Hit <b>Accept</b>, then <b>email jaadoc@gmail.com for completion verification</b></li>
 </ol>
 <p class="small">Wrong clicks cost <b>−5</b> and break your streak. Speed bonus at the end.</p>
-<button class="big go" id="startBtn">▶ Start</button>
+<button class="big go" id="startBtn">▶ Start tutorial</button>
+<p class="small">The tutorial puts a yellow callout on every next click. When you're ready for challenge mode, turn it off with the 🎓 button up top.</p>
 </div>
 </div>
 <div class="overlay" id="win">
@@ -303,8 +315,8 @@ h2.tv{color:var(--green);font-weight:400;font-size:20px;margin:6px 0}
 <div class="learned" id="wLearned"></div>
 <div class="small" id="wBreak"></div>
 <div class="code" id="wCode">CL-XXXXXX</div>
-<input id="wName" placeholder="✍️ Type your name for credit">
-<a id="mailBtn" href="#">📧 EMAIL FOR CREDIT<small>Opens your email to sohnae@upmc.edu, already filled in. Just hit Send.</small></a>
+<input id="wName" placeholder="✍️ Type your name for completion verification">
+<a id="mailBtn" href="#">📧 EMAIL FOR COMPLETION VERIFICATION<small>Opens your email to jaadoc@gmail.com, already filled in. Just hit Send.</small></a>
 <div>
 <button class="big alt" id="copyBtn">📋 Copy code</button>
 <button class="big go" id="againBtn">↻ Next patient</button>
@@ -362,12 +374,12 @@ const NAMES=[['Practice, Pat','PP'],['Sample, Sam','SS'],['Testcase, Terry','TT'
 const PEARLS=["HCCs are generally recaptured each calendar year — chronic doesn't mean 'counted forever.'","MEAT: Monitor, Evaluate, Assess, Treat — every HCC in your A/P should show at least one.","'History of' implies resolved. If it's active and treated, say so.","Specificity matters: type, acuity, stage, severity, complications.","A problem-list entry alone isn't enough — address it in the note.","Don't Defer what you can address today — the gap stays open.","Only certify what's clinically supported. Accuracy > volume."];
 const DECOY_ADVS=[['Flu Vaccine Due','Flu shots matter… but they\'re not an HCC! 💉'],['Tobacco Use Assessment','Tobacco assessment: good care, zero HCC points.'],['More Advisories (2)','More Advisories… less HCC.']];
 const WRONG_MSGS=["Nope — that's not where HCCs live! 🙃","So close… (not close).","The HCC is lonely. Go find it!","Wrong click! The CMS gods frown. ⛈","That's a lovely button. Wrong one, though."];
-const EMAIL='sohnae@upmc.edu';
+const EMAIL='jaadoc@gmail.com';
 /* ---------- STATE ---------- */
-let S,CONDS=[],PT,round=0,timerId,idleT=0,hintOn=false,soundOn=true;
+let S,CONDS=[],PT,round=0,timerId,idleT=0,hintOn=true,soundOn=true;
 const $=id=>document.getElementById(id);
 const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
-function fresh(){return{score:0,wrong:0,good:0,streak:0,opened:false,reviewed:{},added:{},vdx:{},start:null,end:null,done:false}}
+function fresh(){return{score:0,wrong:0,good:0,streak:0,opened:false,reviewed:{},added:{},vdx:{},start:null,end:null,done:false,tut:false}}
 /* ---------- AUDIO ---------- */
 let AC;
 function ac(){if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
@@ -447,7 +459,36 @@ c.animate([{transform:'translate(0,0)'},{transform:`translate(${dx}px,${innerHei
 /* ---------- TIMER ---------- */
 const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
 const secs=()=>S.start?Math.floor(((S.end||Date.now())-S.start)/1000):0;
-function startTimer(){if(S.start)return;S.start=Date.now();timerId=setInterval(()=>{$('timer').textContent=fmt(secs());idleT++;if(idleT===12)hint()},1000)}
+function startTimer(){if(S.start)return;S.start=Date.now();S.tut=hintOn;timerId=setInterval(()=>{$('timer').textContent=fmt(secs());idleT++;if(idleT===12)hint()},1000)}
+/* ---------- TUTORIAL CALLOUT ---------- */
+function setTutorial(on){hintOn=on;const b=$('hintBtn');b.textContent='🎓 Tutorial: '+(on?'on':'off');b.classList.toggle('on',on);if(on&&S.start)S.tut=true;hud()}
+function guideInfo(){
+const el=nextTarget();if(!el)return null;
+const i=CONDS.findIndex(c=>c.id===el.dataset.id)+1;
+switch(el.dataset.act){
+case 'ccr':return{el,t:'Click Chronic Condition Refresh',w:'This advisory opens Condition Review, which lists the HCCs to capture.'};
+case 'cond':return{el,t:`Click the condition name (${i} of 3)`,w:'Review the supporting evidence. A primer opens in the 📘 ClickLearn panel.'};
+case 'pl':return{el,t:'Click Add to Problem List',w:`This captures HCC ${i} of 3. Address it in your note too (MEAT).`};
+case 'accept':return{el,below:true,t:'Click Accept',w:'Optional first: Add Visit Diagnosis on each condition for +5 each.'};
+}
+return null;
+}
+function placeGuide(){
+const g=$('guide'),info=hintOn&&S&&!S.done&&!$('intro').classList.contains('show')?guideInfo():null,
+cr=info&&info.el.isConnected?info.el.getClientRects():[];
+if(!cr.length){if(g.classList.contains('show'))g.classList.remove('show');return}
+const G=14,vt=$('banner').getBoundingClientRect().bottom+8,vb=innerHeight-8,r=cr[0],ax=r.left+r.width/2;
+let t=info.t,w=info.w,place='',ay;
+if(r.top>vb-8){place='above';ay=vb;t='⬇ '+t;w='Scroll down to find it. '+w}
+else if(r.bottom<vt+8){place='below';ay=vt;t='⬆ '+t;w='Scroll up to find it. '+w}
+if(g.dataset.k!==t+w){g.dataset.k=t+w;$('gT').textContent=t;$('gW').textContent=w}
+const gw=g.offsetWidth,gh=g.offsetHeight;
+if(!place){place=(info.below&&r.bottom+G+gh<=vb)||r.top-G-gh<vt?'below':'above';ay=place==='above'?r.top:r.bottom}
+const x=Math.min(Math.max(ax-gw/2,8),innerWidth-gw-8),y=place==='above'?ay-gh-G:ay+G;
+g.style.setProperty('--ax',Math.min(Math.max(ax-x,18),gw-18)+'px');
+g.style.transform=`translate(${Math.round(x)}px,${Math.round(y)}px)`;
+const cn='show '+place;if(g.className!==cn)g.className=cn;
+}
 /* ---------- CLICKS ---------- */
 $('epic').addEventListener('click',e=>{
 const el=e.target.closest('[data-act]');if(!el||S.done)return;
@@ -479,20 +520,20 @@ const t=secs(),bonus=Math.max(0,90-t);S.score+=bonus;hud();
 $('wPt').textContent=PT.name;$('wScore').textContent=S.score;$('wTime').textContent=fmt(t);
 $('wAcc').textContent=Math.round(100*S.good/Math.max(1,S.good+S.wrong))+'%';
 $('wLearned').innerHTML='<b>📘 You learned:</b><br>'+CONDS.map(c=>'✔ '+c.name.replace(' (HCC)','')).join('<br>');
-$('wBreak').textContent=`Speed bonus +${bonus} · Wrong clicks ${S.wrong} · Visit dx bonuses ${Object.keys(S.vdx).length}/3`;
+$('wBreak').textContent=`Speed bonus +${bonus} · Wrong clicks ${S.wrong} · Visit dx bonuses ${Object.keys(S.vdx).length}/3 · ${S.tut?'Tutorial':'Challenge'} mode`;
 let best=0;try{best=+(localStorage.getItem('clickLearnBest')||0);if(S.score>best)localStorage.setItem('clickLearnBest',S.score)}catch(e){}
 $('best').textContent=S.score>best?`🌟 New personal best! (previous: ${best})`:`Personal best: ${best}`;
 updateMail();sWin();confetti();setTimeout(()=>{$('win').classList.add('show');$('wName').focus()},500);
 }
 function updateMail(){
 const name=$('wName').value.trim()||'(name not entered)',code=makeCode(name);$('wCode').textContent=code;
-const body=['ClickLearn: Add the HCC! — completed','',`Name: ${name}`,`Completion code: ${code}`,`Score: ${S.score}`,
+const body=['ClickLearn: Add the HCC! — completed','',`Name: ${name}`,`Completion code: ${code}`,`Score: ${S.score}`,`Mode: ${S.tut?'Tutorial (guided)':'Challenge (no tutorial)'}`,
 `Conditions captured (3/3):`,...CONDS.map(c=>' - '+c.name.replace(' (HCC)','')),
 `Visit dx bonuses: ${Object.keys(S.vdx).length}/3`,`Wrong clicks: ${S.wrong}`,`Time: ${fmt(secs())}`,`Date: ${new Date().toLocaleString()}`].join('\n');
-$('mailBtn').href=`mailto:${EMAIL}?subject=${encodeURIComponent('ClickLearn credit – '+name+' – '+code)}&body=${encodeURIComponent(body)}`;
+$('mailBtn').href=`mailto:${EMAIL}?subject=${encodeURIComponent('ClickLearn completion verification – '+name+' – '+code)}&body=${encodeURIComponent(body)}`;
 }
 $('wName').addEventListener('input',updateMail);
-$('mailBtn').addEventListener('click',e=>{if(!$('wName').value.trim()){e.preventDefault();$('wName').focus();$('wName').style.borderColor='#d32f2f';toast('✍️ Add your name first so you get credit!','bad');sBad()}else sGood()});
+$('mailBtn').addEventListener('click',e=>{if(!$('wName').value.trim()){e.preventDefault();$('wName').focus();$('wName').style.borderColor='#d32f2f';toast('✍️ Add your name first so your completion can be verified!','bad');sBad()}else sGood()});
 $('copyBtn').onclick=()=>{const code=$('wCode').textContent,ok=()=>toast('Code copied 📋','good'),
 manual=()=>{const r=document.createRange();r.selectNodeContents($('wCode'));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Code selected. Press Ctrl+C to copy it.')};
 navigator.clipboard?navigator.clipboard.writeText(code).then(ok,manual):manual()};
@@ -505,12 +546,13 @@ $('cr').classList.remove('show');$('win').classList.remove('show');$('wName').st
 $('learnBody').innerHTML='Click a condition name in Condition Review to learn about it here.';
 renderPatient();renderConds();renderVdx();hud();tick();window.scrollTo({top:0});
 }
-$('startBtn').onclick=()=>{ac();sBPA();$('intro').classList.remove('show')};
+$('startBtn').onclick=()=>{ac();sBPA();setTutorial(true);$('intro').classList.remove('show')};
 $('againBtn').onclick=()=>{newRound();sGood();toast('🧑‍⚕️ New patient, new HCCs!')};
 $('resetBtn').onclick=()=>{newRound();toast('🧑‍⚕️ New patient, new HCCs!')};
-$('hintBtn').onclick=()=>{hintOn=!hintOn;$('hintBtn').textContent='💡 Hint: '+(hintOn?'on':'off');hint()};
+$('hintBtn').onclick=()=>{setTutorial(!hintOn);toast(hintOn?'🎓 Tutorial on: follow the yellow callouts.':'⚡ Tutorial off: hints only appear if you sit idle.')};
 $('sndBtn').onclick=()=>{soundOn=!soundOn;$('sndBtn').textContent=soundOn?'🔊 Sound':'🔇 Muted';if(soundOn)sGood()};
-newRound();
+newRound();setTutorial(true);$('startBtn').focus();
+(function guideLoop(){placeGuide();requestAnimationFrame(guideLoop)})();
 </script>
 </body>
 </html>
