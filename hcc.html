@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<!-- ClickLearn: Add the HCC! | DEMO ONLY. "Example EMR" is a fictional interface made for training.
+     Not a real EMR, not affiliated with or endorsed by any EHR vendor. All patients and data are fictional.
+     Contact: aes95@pitt.edu -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ClickLearn – Add the HCC! (demo only)</title>
+<style>
+:root{
+/* game layer: bedside-monitor look */
+--mon-bg:#0B1620;--mon-bg2:#0F1E2B;--mon-line:#203546;--mon-text:#DCE7EE;--mon-dim:#86A0B0;
+--trace:#3BD98C;--trace-ink:#04261A;--spo2:#4CC6EE;--resp:#F5C451;--alarm:#FF6B6B;--alarm-bg:#B4302A;
+/* EMR layer: Example EMR */
+--paper:#F3F4F8;--surface:#FFFFFF;--sunk:#F8F8FC;--ink:#1B2030;--muted:#5B6276;--line:#DEDFEA;--line-strong:#C6C8DA;
+--accent:#4B3CA0;--accent-ink:#FFFFFF;--accent-soft:#EEEBFA;--accent-line:#CBC4EE;
+--alert-bg:#FDEEF1;--alert-line:#ECB1BD;--alert-ink:#8A1C30;
+--good:#0F8457;--bad:#C2362F;
+--f-ui:"Avenir Next","Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+--f-num:"DIN Alternate","DIN 2014",Bahnschrift,"Barlow Semi Condensed","Roboto Condensed","Liberation Sans Narrow","Arial Narrow",sans-serif-condensed,sans-serif;
+--f-code:ui-monospace,"SF Mono",Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;
+--mon-bg:#081119;--mon-bg2:#0C1923;--mon-line:#1D3141;
+--paper:#13111B;--surface:#1B1926;--sunk:#171521;--ink:#E7E5F1;--muted:#A19DB6;--line:#2E2B3E;--line-strong:#403B57;
+--accent:#B0A4F6;--accent-ink:#17113A;--accent-soft:#2A2548;--accent-line:#4C4484;
+--alert-bg:#3A1921;--alert-line:#7B3446;--alert-ink:#FFBAC7;
+--good:#3BD98C;--bad:#FF8079;
+}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font:13px/1.42 var(--f-ui);color:var(--ink);background:var(--paper)}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:inherit;line-height:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#banner :focus-visible,.card-top :focus-visible{outline-color:var(--trace)}
+.spacer{flex:1}
+.ic{width:14px;height:14px;flex:none}
+
+/* ---------- GAME LAYER: monitor HUD ---------- */
+#banner{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;padding:8px 16px;background:var(--mon-bg);color:var(--mon-text);border-bottom:1px solid var(--mon-line)}
+.brand{margin:0;display:flex;flex-direction:column;line-height:1.05}
+.brand b{font:700 24px/1 var(--f-num);color:#fff;letter-spacing:.2px}
+.brand small{font-size:12px;font-weight:600;color:var(--trace);margin-top:3px}
+#ecg{width:112px;height:30px;flex:none}
+#ecg path,.ecg-big path{fill:none;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+#ecg .base{stroke:var(--trace);opacity:.32}
+#ecg .hot{stroke:var(--trace);stroke-dasharray:100;stroke-dashoffset:100}
+#ecg.beat .hot{animation:sweep .8s ease-out}
+#ecg.miss .hot{stroke:var(--alarm);animation:sweep .8s ease-out}
+@keyframes sweep{0%{stroke-dashoffset:100;opacity:1}75%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+#ring{width:44px;height:44px;flex:none}
+#ring .track{fill:none;stroke:var(--mon-line);stroke-width:5}
+#ringArc{fill:none;stroke:var(--trace);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .5s}
+#ringTxt{fill:#fff;font:700 12px var(--f-num)}
+.readouts{display:flex}
+.ro{padding:1px 12px;border-left:1px solid var(--mon-line);min-width:64px}
+.ro span{display:block;font-size:11px;font-weight:600;white-space:nowrap;color:var(--c,var(--mon-dim))}
+.ro b{display:block;font:700 24px/1.05 var(--f-num);font-variant-numeric:tabular-nums;color:var(--c,#fff)}
+#mission{flex:1;min-width:220px;font-size:13px;line-height:1.35}
+#mission em{font-style:normal;font-weight:700;color:var(--trace)}
+.hkeys{display:flex;gap:6px;flex-wrap:wrap}
+.hkey{padding:6px 10px;border:1px solid var(--mon-line);border-radius:6px;background:var(--mon-bg2);color:var(--mon-text);font-size:12.5px;font-weight:600;white-space:nowrap}
+.hkey:hover{border-color:var(--mon-dim)}
+.hkey.on{border-color:var(--trace);color:var(--trace)}
+.hkey.primary{background:var(--trace);border-color:var(--trace);color:var(--trace-ink)}
+#ticker{display:flex;gap:10px;align-items:baseline;padding:6px 16px;background:var(--mon-bg2);color:var(--mon-text);font-size:12.5px;border-bottom:1px solid var(--mon-line)}
+#ticker b{color:var(--resp);white-space:nowrap}
+#tickTxt{transition:opacity .4s}
+
+/* ---------- EMR LAYER: Example EMR ---------- */
+#emr{position:relative;margin:14px 16px 0;background:var(--surface);border:1px solid var(--line-strong);border-radius:10px;overflow:hidden;user-select:none;-webkit-user-select:none}
+#emr.shake{animation:shake .3s}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.emr-top{display:flex;align-items:center;gap:12px;padding:8px 14px;border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;white-space:nowrap}
+.logo svg{width:22px;height:22px}
+.logo rect{fill:var(--accent)}
+.logo path{fill:none;stroke:var(--accent-ink);stroke-width:1.8;stroke-linecap:round}
+.demo-tag{padding:2px 7px;border:1px dashed var(--alert-line);border-radius:4px;background:var(--alert-bg);color:var(--alert-ink);font-size:11.5px;font-weight:700;white-space:nowrap}
+.search{display:flex;align-items:center;gap:7px;flex:0 1 330px;min-width:150px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden}
+.search:hover{border-color:var(--accent-line)}
+.cnts{display:flex;gap:6px}
+.cnt{display:inline-flex;align-items:center;gap:6px;padding:3px 4px 3px 10px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.cnt i{min-width:22px;padding:1px 6px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-style:normal;text-align:center}
+.cnt:hover{border-color:var(--accent)}
+.emr-menu{display:flex;gap:2px;padding:4px 10px;border-bottom:1px solid var(--line);background:var(--sunk);overflow-x:auto;scrollbar-width:thin}
+.mi{padding:4px 9px;border-radius:6px;color:var(--muted);font-size:12.5px;white-space:nowrap}
+.mi:hover{background:var(--accent-soft);color:var(--accent)}
+
+.pt-band{display:flex;align-items:center;gap:12px 28px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--line)}
+.who{display:flex;align-items:center;gap:10px}
+.av{width:46px;height:46px;flex:none;--h:250}
+.av circle{fill:hsl(var(--h),70%,90%);stroke:hsl(var(--h),45%,72%);stroke-width:1.5}
+.av text{fill:hsl(var(--h),50%,32%);font:700 17px var(--f-ui)}
+.who-name{display:flex;align-items:center;gap:6px;font-size:17px;font-weight:700}
+.who-sub{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12.5px}
+.tag{padding:1px 6px;border-radius:4px;background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:700}
+.xbtn{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;color:var(--muted);font-size:12px}
+.xbtn:hover{background:var(--alert-bg);color:var(--alert-ink)}
+.facts{display:flex;flex-wrap:wrap;gap:8px 24px;margin:0}
+.facts dt{color:var(--muted);font-size:11.5px}
+.facts dd{margin:0;font-size:13px;font-weight:600}
+
+.emr-body{display:grid;grid-template-columns:184px minmax(0,1fr) 340px;min-height:760px}
+.rail{display:flex;flex-direction:column;gap:1px;padding:10px 8px;border-right:1px solid var(--line);background:var(--sunk)}
+.nav{display:block;width:100%;padding:7px 10px;border-radius:6px;font-size:13px}
+.nav:hover{background:var(--accent-soft);color:var(--accent)}
+.nav.on{background:var(--accent-soft);color:var(--accent);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.rail h3{margin:14px 10px 3px;color:var(--muted);font-size:11.5px;font-weight:700}
+.ri{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;padding:5px 10px;border-radius:6px;font-size:12.5px}
+.ri:hover{background:var(--accent-soft);color:var(--accent)}
+.ri i{color:var(--muted);font-style:normal;font-variant-numeric:tabular-nums}
+.ri i.due{color:var(--alert-ink);font-size:11.5px;font-weight:700}
+
+.main{min-width:0;padding:14px 18px 24px}
+.main-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.main-h h2{margin:0;font-size:21px;font-weight:700}
+.when{color:var(--muted);font-size:12.5px}
+.secs{display:flex;flex-wrap:wrap;gap:2px 4px;margin:8px 0 14px;border-bottom:1px solid var(--line)}
+.sec{margin-bottom:-1px;padding:6px 9px;border-bottom:2px solid transparent;color:var(--muted);font-size:12.5px}
+.sec:hover{color:var(--accent);border-bottom-color:var(--accent-line)}
+.alerts-h{margin:0 0 7px;font-size:12.5px;font-weight:700}
+#advs{display:flex;flex-wrap:wrap;gap:8px}
+.alert{display:inline-flex;align-items:center;gap:7px;padding:7px 12px 7px 10px;border:1px solid var(--alert-line);border-radius:8px;background:var(--alert-bg);color:var(--alert-ink);font-size:13px;font-weight:650}
+.alert:hover{border-color:var(--alert-ink)}
+.alert.sm{padding:5px 10px 5px 8px;font-size:12.5px}
+
+#cr{display:none;margin:16px 0 4px;border:1px solid var(--accent-line);border-top:3px solid var(--accent);border-radius:10px;background:var(--surface)}
+#cr.show{display:block;animation:pop .25s ease-out}
+@keyframes pop{from{transform:translateY(-4px);opacity:0}to{transform:none;opacity:1}}
+.crh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.crh h3{margin:0;font-size:15px}
+.cert{padding:4px 14px 2px}
+.cert h4,.vd h4{margin:8px 0 4px;color:var(--muted);font-size:12.5px}
+.cond{margin:8px 0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--sunk)}
+.crow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.cname{display:inline-flex;align-items:flex-start;gap:7px;color:var(--accent);font-size:14px;font-weight:650;line-height:1.3}
+.cname:hover>span{text-decoration:underline}
+.cname .ic{margin-top:2px}
+.hcc{display:inline-block;margin-left:7px;padding:1px 5px;border-radius:4px;background:var(--accent-soft);color:var(--accent);font-size:10.5px;font-weight:700;vertical-align:1px}
+.crow-links{display:flex;gap:14px;flex:none}
+.crow2{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:9px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line-strong);border-radius:6px;background:var(--surface);font-size:12.5px;font-weight:600;white-space:nowrap}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.link{color:var(--accent);font-size:12.5px;font-weight:600;white-space:nowrap}
+.link:hover{text-decoration:underline}
+.pl{display:inline-flex;align-items:center;gap:7px;padding:5px 11px 5px 8px;border:1px solid var(--accent-line);border-radius:6px;background:var(--surface);color:var(--accent);font-size:12.5px;font-weight:700;white-space:nowrap}
+.pl .box{width:14px;height:14px;border:1.5px solid currentColor;border-radius:3px}
+.pl.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.ev{display:none;margin-top:9px;padding:8px 12px;border:1px dashed var(--line-strong);border-radius:6px;background:var(--surface);font-size:12.5px}
+.ev.show{display:block;animation:pop .2s}
+.ev ul{margin:3px 0 0;padding-left:18px}
+.vd{padding:2px 14px 12px}
+#vdList{color:var(--muted);font-size:12.5px}
+.vdi{margin:3px 0;padding:4px 9px;border-radius:6px;background:var(--accent-soft);color:var(--ink);font-size:12.5px}
+.vd-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
+.btn.primary{padding:6px 14px;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.btn.primary:hover{color:var(--accent-ink);filter:brightness(1.08)}
+#acceptBtn.ready{background:var(--trace);border-color:var(--trace);color:var(--trace-ink);animation:glow 1s infinite}
+@keyframes glow{50%{box-shadow:0 0 0 6px rgba(59,217,140,.35)}}
+
+.panels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-top:18px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.panel{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.panel h3{margin:0 0 8px;font-size:13.5px}
+.row-tools{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.fake-in{flex:1 1 150px;padding:5px 9px;border:1px solid var(--line-strong);border-radius:6px;background:var(--sunk);color:var(--muted);font-size:12.5px}
+.outside{margin:10px 0 4px}
+.med{display:grid;grid-template-columns:16px minmax(0,1fr) minmax(90px,130px) 26px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.med:last-child{border-bottom:0}
+.mname{color:var(--accent);font-weight:600}
+.mname:hover{text-decoration:underline}
+.sig{color:var(--muted);font-size:12px}
+.edit{display:grid;place-items:center;width:26px;height:26px;border-radius:6px;color:var(--muted)}
+.edit:hover{background:var(--accent-soft);color:var(--accent)}
+.pill-ic{color:var(--accent)}
+.instr-box{height:96px;margin-top:8px;border:1px solid var(--line-strong);border-radius:6px;background:var(--sunk)}
+.fu{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:6px}
+.fu .btn{justify-content:center;padding:6px 4px;white-space:normal;text-align:center}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+
+.side{display:flex;flex-direction:column;gap:14px;padding:14px;border-left:1px solid var(--line)}
+.tabs{display:flex;gap:4px;margin:-2px 0 10px;border-bottom:1px solid var(--line)}
+.tab{margin-bottom:-1px;padding:6px 10px;border-bottom:2px solid transparent;color:var(--muted);font-size:12.5px}
+.tab:hover{color:var(--accent)}
+.tab.on{color:var(--accent);font-weight:700;border-bottom-color:var(--accent)}
+.note-tools{display:flex;flex-wrap:wrap;gap:6px}
+.note-h{margin:12px 0 2px;font-size:14px}
+.note-meta{display:flex;flex-wrap:wrap;gap:4px 14px;color:var(--muted);font-size:12px}
+.notebox{height:210px;margin-top:8px;border:1px solid var(--line-strong);border-radius:6px;background-color:var(--sunk);background-image:repeating-linear-gradient(to bottom,transparent 0 23px,var(--line) 23px 24px);background-position:0 8px}
+.note-actions{display:flex;align-items:center;gap:6px;margin-top:8px}
+#learn{padding:12px 14px 14px;border:1px solid var(--mon-line);border-radius:10px;background:var(--mon-bg);color:var(--mon-text)}
+#learn h4{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 6px;font:700 16px/1.2 var(--f-num);color:#fff}
+#learn h4 small{font:600 11.5px var(--f-ui);color:var(--trace)}
+#learnBody{font-size:12.5px;line-height:1.5}
+#learnBody .dx{display:block;margin-bottom:2px;color:#fff;font-weight:700}
+#learnBody .kv{margin-top:7px}
+#learnBody .k{display:block;font-size:11.5px;font-weight:700;color:var(--c)}
+.meat{padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.meat p{margin:0 0 8px;font-size:12.5px}
+.meat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.meat-grid div{padding:6px 4px;border-radius:6px;background:var(--sunk);color:var(--muted);font-size:11.5px;text-align:center}
+.meat-grid b{display:block;font:700 20px/1.1 var(--f-num);color:var(--accent)}
+
+.demo-foot{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0 16px;padding:12px 2px 24px;color:var(--muted);font-size:12px}
+.demo-foot strong{color:var(--alert-ink)}
+.demo-foot a{color:var(--accent);font-weight:600}
+
+/* ---------- FEEDBACK ---------- */
+#toast{position:fixed;left:50%;bottom:26px;z-index:450;max-width:80vw;padding:9px 16px;transform:translateX(-50%);border:1px solid var(--mon-line);border-radius:20px;background:var(--mon-bg);color:var(--mon-text);font-size:13px;font-weight:600;text-align:center;opacity:0;transition:opacity .2s;pointer-events:none}
+#toast.show{opacity:.97}
+#toast.good{background:var(--trace);border-color:var(--trace);color:var(--trace-ink)}
+#toast.bad{background:var(--alarm-bg);border-color:var(--alarm-bg);color:#fff}
+.float{position:fixed;z-index:200;pointer-events:none;font:800 20px var(--f-num);text-shadow:0 1px 0 var(--surface),0 0 6px var(--surface);animation:floatUp 1.1s ease-out forwards}
+.float.good{color:var(--good)}.float.bad{color:var(--bad)}
+@keyframes floatUp{to{transform:translateY(-60px) scale(1.25);opacity:0}}
+@keyframes fadeOut{to{opacity:0}}
+.confetti{position:fixed;top:-20px;z-index:500;width:9px;height:14px;pointer-events:none}
+/* tutorial mode: a callout that points at the next click */
+#guide{position:fixed;left:0;top:0;z-index:190;max-width:290px;padding:9px 13px 10px;border-radius:10px;background:var(--trace);color:var(--trace-ink);box-shadow:0 10px 28px rgba(0,0,0,.3);pointer-events:none;opacity:0;transition:opacity .15s}
+#guide.show{opacity:1}
+#guide b{display:block;font-size:13.5px;line-height:1.3}
+#guide span{display:block;margin-top:3px;font-size:12px;line-height:1.35;opacity:.85}
+#guide::after{content:"";position:absolute;left:var(--ax,50%);width:12px;height:12px;background:var(--trace);transform:translateX(-50%) rotate(45deg)}
+#guide.above::after{bottom:-5px}
+#guide.below::after{top:-5px}
+.pulse{animation:pulse 1.1s infinite !important;position:relative;z-index:5}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 2px var(--trace),0 0 0 2px rgba(59,217,140,.75)}50%{box-shadow:0 0 0 2px var(--trace),0 0 0 10px rgba(59,217,140,0)}}
+
+/* ---------- OVERLAYS ---------- */
+.overlay{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;overflow:auto;padding:20px;background:rgba(5,12,20,.74)}
+.overlay.show{display:flex}
+.card{width:94%;max-width:560px;margin:auto;overflow:hidden;border-radius:14px;background:var(--surface);color:var(--ink);box-shadow:0 24px 60px rgba(0,0,0,.45)}
+.card-top{padding:18px 24px 16px;background:var(--mon-bg);color:var(--mon-text)}
+.card-top h2{margin:8px 0 2px;font:700 28px/1.1 var(--f-num);color:#fff}
+.card-top p{margin:4px 0 0;color:var(--mon-dim)}
+.card-top p b{color:#fff}
+.ecg-big{display:block;width:180px;height:40px}
+.ecg-big .base{stroke:var(--trace);opacity:.3}
+.ecg-big .hot{stroke:var(--trace);stroke-dasharray:100;stroke-dashoffset:0}
+.overlay.show .ecg-big .hot{animation:draw 1.4s ease-out .2s both}
+@keyframes draw{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+.card-body{padding:16px 24px 20px}
+.card-body>p:first-child{margin-top:0}
+.card-body ol{margin:10px 0 12px;padding-left:22px;line-height:1.55}
+.card-body li{margin:4px 0}
+.pts{display:inline-block;margin-left:3px;padding:0 6px;border-radius:4px;background:var(--accent-soft);color:var(--accent);font-size:11.5px;font-weight:700}
+.fine{margin:8px 0;color:var(--muted);font-size:12px}
+.cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border-radius:8px;background:var(--trace);color:var(--trace-ink);font-size:15px;font-weight:800}
+.cta:hover{filter:brightness(1.06)}
+.cta.alt{border:1px solid var(--line-strong);background:var(--sunk);color:var(--ink)}
+.demo-note{margin:14px 0 0;padding:9px 11px;border:1px dashed var(--alert-line);border-radius:8px;background:var(--alert-bg);color:var(--alert-ink);font-size:12px}
+#win .card{max-width:600px}
+#win .card-top{padding:22px 24px 16px;text-align:center}
+.gj{font:700 46px/1 var(--f-num);color:var(--trace)}
+#win .card-body{text-align:center}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 12px}
+.grid3 div{padding:8px 6px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);color:var(--muted);font-size:12px}
+.grid3 b{display:block;font:700 24px/1.15 var(--f-num);color:var(--ink)}
+.learned{margin:0 0 10px;padding:9px 12px;border-radius:8px;background:var(--accent-soft);font-size:12.5px;text-align:left}
+.learned b{color:var(--accent)}
+.learned ul{margin:4px 0 0;padding-left:18px}
+#wBreak{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;color:var(--muted);font-size:12px}
+#wBreak span{padding:2px 8px;border:1px solid var(--line);border-radius:999px}
+.code{margin:12px 0 8px;padding:9px;border-radius:8px;background:var(--mon-bg);color:var(--resp);font:700 22px var(--f-code);letter-spacing:2px;user-select:all}
+#wName{width:100%;margin:6px 0;padding:11px;border:2px solid var(--accent-line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;font-size:15px;text-align:center}
+#wName:focus{outline:none;border-color:var(--accent)}
+#mailBtn{display:block;margin:8px 0 10px;padding:15px 16px;border-radius:10px;background:var(--trace);color:var(--trace-ink);font-size:17px;font-weight:800;line-height:1.25;text-decoration:none;animation:breathe 2.4s ease-in-out infinite}
+#mailBtn small{display:block;margin-top:3px;font-size:12px;font-weight:600;opacity:.85}
+@keyframes breathe{50%{box-shadow:0 0 0 7px rgba(59,217,140,.22)}}
+.win-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.foot{margin-top:8px;color:var(--muted);font-size:12px}
+
+/* ---------- DARK MODE EXTRAS ---------- */
+@media (prefers-color-scheme:dark){
+.av circle{fill:hsl(var(--h),30%,24%);stroke:hsl(var(--h),30%,42%)}
+.av text{fill:hsl(var(--h),70%,84%)}
+.overlay{background:rgba(0,0,0,.7)}
+}
+
+/* ---------- SMALLER SCREENS ---------- */
+@media (max-width:1180px){
+.emr-body{grid-template-columns:172px minmax(0,1fr)}
+.side{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));align-items:start;border-left:0;border-top:1px solid var(--line)}
+}
+@media (max-width:860px){
+#banner{position:static}
+.readouts{flex-wrap:wrap;row-gap:6px}
+#mission{order:9;flex-basis:100%}
+#emr{margin:10px 0 0;border-left:0;border-right:0;border-radius:0}
+.emr-top{flex-wrap:wrap}
+.search{order:5;flex-basis:100%}
+.emr-body{grid-template-columns:minmax(0,1fr)}
+.rail{flex-direction:row;overflow-x:auto;padding:6px;border-right:0;border-bottom:1px solid var(--line)}
+.rail h3{display:none}
+.nav,.ri{width:auto;white-space:nowrap}
+.nav.on{box-shadow:inset 0 -2px 0 var(--accent)}
+.panels{grid-template-columns:minmax(0,1fr)}
+.crow{flex-wrap:wrap;row-gap:4px}
+.demo-foot{margin:0 12px}
+}
+
+/* ---------- REDUCED MOTION ---------- */
+@media (prefers-reduced-motion:reduce){
+#guide,#tickTxt,#ringArc{transition:none}
+#ecg.beat .hot,#ecg.miss .hot,.overlay.show .ecg-big .hot,#mailBtn,#acceptBtn.ready,#emr.shake,#cr.show,.ev.show{animation:none}
+.pulse{animation:none !important;box-shadow:0 0 0 3px var(--trace)}
+.float{animation:fadeOut 1.1s forwards}
+}
+</style>
+</head>
+<body>
+<header id="banner">
+<h1 class="brand"><b>ClickLearn</b><small>Add the HCC!</small></h1>
+<svg id="ecg" viewBox="0 0 120 32" aria-hidden="true"><path class="base" d="M0 19H30l3-3 3 3H44l2 3 4-19 4 25 3-9H66q5-8 10 0H120"/><path class="hot" pathLength="100" d="M0 19H30l3-3 3 3H44l2 3 4-19 4 25 3-9H66q5-8 10 0H120"/></svg>
+<svg id="ring" viewBox="0 0 46 46" aria-hidden="true"><circle class="track" cx="23" cy="23" r="19"/><circle id="ringArc" cx="23" cy="23" r="19" stroke-dasharray="119.4" stroke-dashoffset="119.4" transform="rotate(-90 23 23)"/><text id="ringTxt" x="23" y="27.5" text-anchor="middle">0/3</text></svg>
+<div class="readouts">
+<div class="ro" style="--c:var(--trace)"><span>Points</span><b id="score">0</b></div>
+<div class="ro" style="--c:var(--alarm)"><span>Wrong clicks</span><b id="wrong">0</b></div>
+<div class="ro" style="--c:var(--spo2)"><span>Time</span><b id="timer">0:00</b></div>
+<div class="ro" style="--c:var(--resp)"><span>🔥 Streak</span><b id="streak">0</b></div>
+<div class="ro"><span>Round</span><b id="roundN">1</b></div>
+</div>
+<div id="mission"></div>
+<div class="hkeys">
+<button type="button" class="hkey on" id="hintBtn" title="Tutorial mode puts a green callout on every next click. Turn it off for challenge mode.">🎓 Tutorial: on</button>
+<button type="button" class="hkey" id="sndBtn">🔊 Sound</button>
+<button type="button" class="hkey primary" id="resetBtn">↻ New patient</button>
+</div>
+</header>
+<div id="ticker"><b>💡 HCC pearl</b><span id="tickTxt"></span></div>
+
+<div id="emr">
+<div class="emr-top">
+<div class="logo"><svg viewBox="0 0 22 22" aria-hidden="true"><rect width="22" height="22" rx="6"/><path d="M6 7.5h10M6 11h6.5M6 14.5h8.5"/></svg>Example EMR</div>
+<span class="demo-tag" title="Fictional training interface. Not a real EMR.">Demo only</span>
+<button type="button" class="search" data-act="decoy" data-msg="Searching won't capture an HCC… try the alerts!"><svg class="ic" viewBox="0 0 14 14" aria-hidden="true"><circle cx="6" cy="6" r="4.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9.2 9.2 12.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Search patients, orders, notes</button>
+<span class="spacer"></span>
+<div class="cnts">
+<button type="button" class="cnt" data-act="decoy" data-msg="Your inbox can wait. The HCC cannot. 😅">Inbox <i>14</i></button>
+<button type="button" class="cnt" data-act="decoy" data-msg="Unsigned notes: noble, but not this game.">Unsigned <i>1</i></button>
+<button type="button" class="cnt" data-act="decoy" data-msg="329 messages… let's not.">Messages <i>329</i></button>
+</div>
+</div>
+<nav class="emr-menu" aria-label="Example EMR menu">
+<button type="button" class="mi" data-act="decoy">Schedule</button>
+<button type="button" class="mi" data-act="decoy">Patient search</button>
+<button type="button" class="mi" data-act="decoy">Reports</button>
+<button type="button" class="mi" data-act="decoy">Reference links</button>
+<button type="button" class="mi" data-act="decoy">Tools</button>
+<button type="button" class="mi" data-act="decoy" data-msg="Set a reminder… to add the HCC!">Reminders</button>
+<button type="button" class="mi" data-act="decoy" data-msg="No on-call needed — you've got this.">On-call schedule</button>
+<button type="button" class="mi" data-act="decoy">Phone encounter</button>
+<button type="button" class="mi" data-act="decoy" data-msg="Incident reports ≠ risk adjustment. Nice try!">Incident report</button>
+<button type="button" class="mi" data-act="decoy">Quick actions</button>
+<button type="button" class="mi" data-act="decoy" data-msg="Training modules are great for later!">Training</button>
+</nav>
+<div class="pt-band">
+<div class="who">
+<svg class="av" id="av" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/><text id="avTxt" x="24" y="30" text-anchor="middle">PP</text></svg>
+<div>
+<div class="who-name"><span id="ptName">Practice, Pat</span><button type="button" class="xbtn" data-act="decoy" data-msg="Don't close the chart — the HCCs are in here!" aria-label="Close chart">✕</button></div>
+<div class="who-sub"><span id="ptAge"></span><span class="tag">Practice patient</span></div>
+</div>
+</div>
+<dl class="facts">
+<div><dt>PCP</dt><dd>You</dd></div>
+<div><dt>Coverage</dt><dd>Practice plan</dd></div>
+<div><dt>Allergies</dt><dd>2 on file</dd></div>
+<div><dt>Vitals today</dt><dd id="ptVitals"></dd></div>
+<div><dt>Pain agreement</dt><dd>None on file</dd></div>
+<div><dt>Isolation</dt><dd>None</dd></div>
+</dl>
+</div>
+<div class="emr-body">
+<nav class="rail" aria-label="Chart sections">
+<button type="button" class="nav" data-act="decoy" data-msg="The chart summary: lovely rabbit hole. Stay focused!">Summary</button>
+<button type="button" class="nav" data-act="decoy">Chart history</button>
+<button type="button" class="nav" data-act="decoy">Intake</button>
+<button type="button" class="nav on" data-act="decoy" data-msg="You're already on Today's visit 🙂">Today's visit</button>
+<button type="button" class="nav" data-act="decoy">Wellness visit</button>
+<button type="button" class="nav" data-act="decoy">Immunizations</button>
+<button type="button" class="nav" data-act="decoy">Medications</button>
+<h3>Since last visit</h3>
+<button type="button" class="ri" data-act="decoy">ED visits <i>2</i></button>
+<button type="button" class="ri" data-act="decoy">Lab results <i>8</i></button>
+<button type="button" class="ri" data-act="decoy">Microbiology <i>1</i></button>
+<h3>Care gaps</h3>
+<button type="button" class="ri" data-act="decoy" data-msg="Care gaps matter — but first, capture the chronic conditions!">Hemoglobin A1c <i class="due">Due</i></button>
+<button type="button" class="ri" data-act="decoy">Depression screening <i class="due">Due</i></button>
+<button type="button" class="ri" data-act="decoy">COVID-19 vaccine <i class="due">Due</i></button>
+</nav>
+<main class="main">
+<div class="main-h"><h2>Today's visit</h2><span class="when">10:00 AM follow-up, internal medicine</span></div>
+<div class="secs">
+<button type="button" class="sec" data-act="decoy">Medications</button>
+<button type="button" class="sec" data-act="decoy">Visit diagnoses</button>
+<button type="button" class="sec" data-act="decoy" data-msg="Close! But use the Chronic condition recapture alert.">Problem list</button>
+<button type="button" class="sec" data-act="decoy">Order sets</button>
+<button type="button" class="sec" data-act="decoy">Instructions</button>
+<button type="button" class="sec" data-act="decoy">Follow-up</button>
+<button type="button" class="sec" data-act="decoy">Billing</button>
+</div>
+<section aria-label="Alerts for this visit">
+<h3 class="alerts-h">Alerts for this visit</h3>
+<div id="advs"></div>
+</section>
+<section id="cr" aria-label="Condition review">
+<div class="crh"><h3>Condition review</h3><button type="button" class="link" data-act="decoy" data-msg="Expand all won't capture anything 😉">Expand all</button></div>
+<div class="cert"><h4>Chronic conditions to recapture (3)</h4><div id="conds"></div></div>
+<div class="vd">
+<h4>Visit diagnoses</h4>
+<div id="vdList">No visit diagnoses yet.</div>
+<div class="vd-actions">
+<button type="button" class="btn" data-act="decoy">Common</button>
+<button type="button" class="btn" data-act="decoy">Previous</button>
+<button type="button" class="btn" data-act="decoy">From problem list</button>
+<span class="spacer"></span>
+<button type="button" class="btn primary" id="acceptBtn" data-act="accept">✔ Save review</button>
+</div>
+</div>
+</section>
+<div class="panels">
+<section class="panel">
+<h3>Medications</h3>
+<div class="row-tools"><span class="fake-in">Search medications</span><button type="button" class="btn" data-act="decoy">+ Patient-reported</button></div>
+<button type="button" class="alert sm outside" data-act="decoy" data-msg="Reconciling is great… but no HCC here."><svg class="ic" viewBox="0 0 14 14" aria-hidden="true"><path d="M3.5 1.5v11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4.3 2h7.2l-1.9 2.8 1.9 2.8H4.3z" fill="currentColor"/></svg>Reconcile outside meds</button>
+<div id="meds"></div>
+</section>
+<div class="stack">
+<section class="panel"><h3>Instructions</h3>
+<div class="row-tools"><span class="fake-in">Attach a handout</span><button type="button" class="btn" data-act="decoy">+ Add</button></div>
+<div class="instr-box"></div></section>
+<section class="panel"><h3>References</h3>
+<button type="button" class="link" data-act="decoy">Open reference library ↗</button></section>
+<section class="panel"><h3>Follow-up</h3>
+<div class="small muted">☐ No follow-up needed</div>
+<div class="small" style="margin-top:4px">With you in</div>
+<div class="fu"><button type="button" class="btn" data-act="decoy">1 week</button><button type="button" class="btn" data-act="decoy">2 weeks</button><button type="button" class="btn" data-act="decoy">1 month</button><button type="button" class="btn" data-act="decoy">3 months</button><button type="button" class="btn" data-act="decoy">6 months</button></div>
+</section>
+</div>
+</div>
+</main>
+<aside class="side">
+<section class="panel">
+<div class="tabs"><button type="button" class="tab on" data-act="decoy">Note</button><button type="button" class="tab" data-act="decoy">Review</button><button type="button" class="tab" data-act="decoy">Insights</button></div>
+<div class="note-tools">
+<button type="button" class="btn" data-act="decoy">+ New note</button>
+<button type="button" class="btn" data-act="decoy">Progress</button>
+<button type="button" class="btn" data-act="decoy">Procedure</button>
+<button type="button" class="btn" data-act="decoy">Pre-op</button>
+<button type="button" class="btn" data-act="decoy" data-msg="The AI scribe is listening… to you clicking the wrong thing. 🤖">AI scribe</button>
+</div>
+<h3 class="note-h">Visit note</h3>
+<div class="note-meta"><span>Service: Internal medicine</span><span>☐ Cosign required</span></div>
+<div class="notebox"></div>
+<div class="note-actions"><button type="button" class="link" data-act="decoy">Insert data</button><span class="spacer"></span><button type="button" class="btn" data-act="decoy" data-msg="Signing before capturing the HCCs? Bold move. Wrong, though.">✔ Sign note</button><button type="button" class="btn" data-act="decoy">Discard</button></div>
+</section>
+<section id="learn" aria-live="polite">
+<h4>Know your Dx <small>ClickLearn</small></h4>
+<div id="learnBody">Click a condition name in Condition review to learn about it here.</div>
+</section>
+<section class="meat">
+<p><b>MEAT check</b> for each HCC in your A/P</p>
+<div class="meat-grid"><div><b>M</b>Monitor</div><div><b>E</b>Evaluate</div><div><b>A</b>Assess</div><div><b>T</b>Treat</div></div>
+</section>
+</aside>
+</div>
+</div>
+<footer class="demo-foot">
+<span><strong>Demo only.</strong> Every patient, med list, and result here is fictional. Example EMR is a made-up interface for training, not a real EMR, and this game isn't affiliated with or endorsed by any EHR vendor.</span>
+<span>Questions: <a class="js-email" href="mailto:aes95@pitt.edu">aes95@pitt.edu</a></span>
+</footer>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="guide" aria-live="polite"><b id="gT"></b><span id="gW"></span></div>
+
+<div class="overlay show" id="intro" role="dialog" aria-modal="true" aria-labelledby="introTitle">
+<div class="card">
+<div class="card-top">
+<svg class="ecg-big" viewBox="0 0 120 32" aria-hidden="true"><path class="base" d="M0 19H30l3-3 3 3H44l2 3 4-19 4 25 3-9H66q5-8 10 0H120"/><path class="hot" pathLength="100" d="M0 19H30l3-3 3 3H44l2 3 4-19 4 25 3-9H66q5-8 10 0H120"/></svg>
+<h2 id="introTitle">ClickLearn: Add the HCC!</h2>
+<p>A practice run inside Example EMR, a made-up chart built for training.</p>
+</div>
+<div class="card-body">
+<p>Each practice patient (all fake) has <b>3 uncaptured chronic conditions</b>, drawn at random from a rotating pool. Capture them and learn about each one.</p>
+<ol>
+<li>Click the <b>Chronic condition recapture</b> alert to unlock Condition review <span class="pts">+10</span></li>
+<li>Click each <b>condition name</b> to review evidence and learn the dx <span class="pts">+10</span></li>
+<li>Click <b>Add to problem list</b> <span class="pts">+25</span>, plus <b>Add visit diagnosis</b> for a bonus <span class="pts">+5</span></li>
+<li>Hit <b>Save review</b>, then email <b class="js-email">aes95@pitt.edu</b> for completion verification</li>
+</ol>
+<p class="fine">Wrong clicks cost −5 and break your streak. Speed bonus at the end.</p>
+<button type="button" class="cta" id="startBtn">▶ Start tutorial</button>
+<p class="fine">The tutorial puts a green callout on every next click. When you're ready for challenge mode, turn it off with the 🎓 button up top.</p>
+<p class="demo-note"><b>Demo only.</b> Fictional patients in a made-up EMR, not affiliated with any EHR vendor. Questions: <span class="js-email">aes95@pitt.edu</span></p>
+</div>
+</div>
+</div>
+
+<div class="overlay" id="win" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+<div class="card">
+<div class="card-top">
+<div class="gj" id="winTitle">Great job!</div>
+<p>🏆 All 3 HCCs captured for <b id="wPt"></b></p>
+</div>
+<div class="card-body">
+<div class="grid3">
+<div><b id="wScore">0</b>Points</div>
+<div><b id="wTime">0:00</b>Time</div>
+<div><b id="wAcc">100%</b>Accuracy</div>
+</div>
+<div class="learned" id="wLearned"></div>
+<div id="wBreak"></div>
+<div class="code" id="wCode">CL-XXXXXX</div>
+<input id="wName" placeholder="✍️ Type your name for completion verification" autocomplete="name">
+<a id="mailBtn" href="#">📧 Email for completion verification<small>Opens your email to <span class="js-email">aes95@pitt.edu</span>, already filled in. Just hit Send.</small></a>
+<div class="win-actions">
+<button type="button" class="cta alt" id="copyBtn">📋 Copy code</button>
+<button type="button" class="cta" id="againBtn">↻ Next patient</button>
+</div>
+<div class="foot" id="best"></div>
+</div>
+</div>
+</div>
+
+<script>
+/* ---------- ROTATING DX POOL ---------- */
+const POOL=[
+{id:'dmckd',name:'Type 2 diabetes mellitus with diabetic chronic kidney disease (HCC)',alt:'Mark resolved',
+meds:[['metFORMIN (Glucophage) 500 mg tablet','1,000 mg, Oral, BID'],['empagliflozin (Jardiance) 10 mg tablet','10 mg, Oral, Daily']],
+ev:['A1c 8.1%, eGFR 52, UACR 120 mg/g (practice data)','On metformin + SGLT2 inhibitor'],
+info:{what:'Diabetes with a kidney complication. In ICD-10-CM, "with" links diabetes and CKD unless you document another cause.',doc:'Name the complication and add the CKD stage as its own diagnosis.',pit:'"DM2, uncomplicated" plus a separate CKD entry loses the link.'}},
+{id:'ob',name:'Morbid (severe) obesity due to excess calories (HCC)',alt:'Not applicable',
+meds:[['semaglutide (Wegovy) 1.7 mg/0.75 mL pen','1.7 mg, Subcut, Weekly']],
+ev:['BMI 41.3 at this visit (practice data)','On GLP-1 RA for weight management'],
+info:{what:'Generally BMI ≥40, or ≥35 with obesity-related conditions.',doc:'Write the clinical diagnosis yourself. A BMI code only counts when a provider-documented weight diagnosis goes with it.',pit:'Leaving just a BMI from intake with no assessment or plan.'}},
+{id:'hfpef',name:'Chronic diastolic (congestive) heart failure (HCC)',alt:'Mark resolved',
+meds:[['torsemide (Demadex) 20 mg tablet','20 mg, Oral, Daily'],['spironolactone (Aldactone) 25 mg tablet','25 mg, Oral, Daily']],
+ev:['Echo: LVEF 58%, grade II diastolic dysfunction (practice data)','On loop diuretic + MRA'],
+info:{what:'Heart failure with preserved ejection fraction (HFpEF).',doc:'State the acuity (chronic) and the type (diastolic / HFpEF), plus volume status and plan.',pit:'"CHF" or "HF" without type or acuity is less specific.'}},
+{id:'ckd3b',name:'Chronic kidney disease, stage 3b (HCC)',alt:'Mark resolved',
+meds:[['losartan (Cozaar) 50 mg tablet','50 mg, Oral, Daily']],
+ev:['eGFR 38 and 41, more than 3 months apart (practice data)','On ARB for renal protection'],
+info:{what:'eGFR 30–44 for at least 3 months.',doc:'Document the stage, the cause, and the monitoring (labs, ACEi/ARB, nephrology).',pit:'Using an unstaged "CKD" or calling it "renal insufficiency."'}},
+{id:'copd',name:'Chronic obstructive pulmonary disease (HCC)',alt:'Not applicable',
+meds:[['tiotropium (Spiriva Respimat) 2.5 mcg inhaler','2 puffs, Inhaled, Daily'],['albuterol HFA 90 mcg inhaler','2 puffs, q4h PRN']],
+ev:['Spirometry: FEV1/FVC 0.62 post-bronchodilator (practice data)','On LAMA + rescue SABA'],
+info:{what:'Persistent airflow limitation (post-bronchodilator FEV1/FVC < 0.70).',doc:'Note symptom control, exacerbations, and inhaler plan. Say whether it is "with acute exacerbation" when that applies.',pit:'Writing only "emphysema hx" in PMH with no assessment.'}},
+{id:'mdd',name:'Major depressive disorder, recurrent, moderate (HCC)',alt:'Mark resolved',
+meds:[['sertraline (Zoloft) 100 mg tablet','100 mg, Oral, Daily']],
+ev:['PHQ-9 = 13 today (practice data)','On SSRI, followed by behavioral health'],
+info:{what:'Major depression with episodes that recur.',doc:'Specify single or recurrent episode, severity, and remission status.',pit:'"Depression, unspecified" may not risk-adjust. Be specific.'}},
+{id:'afib',name:'Persistent atrial fibrillation (HCC)',alt:'Mark resolved',
+meds:[['apixaban (Eliquis) 5 mg tablet','5 mg, Oral, BID'],['metoprolol succinate 50 mg tablet','50 mg, Oral, Daily']],
+ev:['ECG today: AF, rate 78 (practice data)','On anticoagulant + rate control'],
+info:{what:'AF that lasts more than 7 days.',doc:'Give the AF type (paroxysmal, persistent, or permanent), the CHA₂DS₂-VASc score, and the anticoagulation plan.',pit:'Writing "history of AF" when it is still active and treated. "History of" implies resolved.'}},
+{id:'pad',name:'Atherosclerosis of native arteries of bilateral legs with intermittent claudication (HCC)',alt:'Not applicable',
+meds:[['cilostazol (Pletal) 100 mg tablet','100 mg, Oral, BID'],['clopidogrel (Plavix) 75 mg tablet','75 mg, Oral, Daily']],
+ev:['ABI 0.72 R / 0.78 L (practice data)','Calf claudication at 2 blocks'],
+info:{what:'Peripheral artery disease (PAD) from atherosclerosis.',doc:'State the vessel, the side(s), and the severity (claudication, rest pain, ulcer).',pit:'Plain "PVD" is less specific than the atherosclerosis codes.'}},
+{id:'ra',name:'Rheumatoid arthritis with rheumatoid factor, multiple sites (HCC)',alt:'Mark resolved',
+meds:[['methotrexate 2.5 mg tablet','15 mg, Oral, Weekly'],['folic acid 1 mg tablet','1 mg, Oral, Daily']],
+ev:['RF and anti-CCP positive (practice data)','On methotrexate, followed by rheumatology'],
+info:{what:'An autoimmune inflammatory arthritis.',doc:'Give seropositive or seronegative status, the sites involved, disease activity, and DMARD monitoring.',pit:'Writing "arthritis" or "OA/RA" loosely.'}},
+{id:'hiv',name:'Human immunodeficiency virus (HIV) disease (HCC)',alt:'Not applicable',
+meds:[['bictegravir/emtricitabine/tenofovir AF (Biktarvy) tablet','1 tab, Oral, Daily']],
+ev:['Viral load undetectable, CD4 640 (practice data)','On ART, followed by ID clinic'],
+info:{what:'Chronic HIV infection treated with ART.',doc:'Document it every year, even with an undetectable viral load. Include ART adherence and labs.',pit:'Leaving it off because it is "well controlled."'}}
+];
+const FILLER_MEDS=[['atorvastatin (Lipitor) 20 mg tablet','20 mg, Oral, Daily'],['cyanocobalamin (B-12) 1,000 mcg tablet','1,000 mcg, Oral, Daily'],['amLODIPine (Norvasc) 5 mg tablet','5 mg, Oral, Daily'],['omeprazole 20 mg capsule','20 mg, Oral, Daily']];
+const NAMES=[['Practice, Pat','PP'],['Sample, Sam','SS'],['Testcase, Terry','TT'],['Demo, Dana','DD'],['Mock, Morgan','MM'],['Trainer, Taylor','TT']];
+const PEARLS=["HCCs are generally recaptured each calendar year — chronic doesn't mean 'counted forever.'","MEAT: Monitor, Evaluate, Assess, Treat — every HCC in your A/P should show at least one.","'History of' implies resolved. If it's active and treated, say so.","Specificity matters: type, acuity, stage, severity, complications.","A problem-list entry alone isn't enough — address it in the note.","Don't snooze what you can address today — the gap stays open.","Only capture what's clinically supported. Accuracy > volume."];
+const DECOY_ADVS=[['Flu vaccine due','Flu shots matter… but they\'re not an HCC! 💉'],['Tobacco use screening','Tobacco screening: good care, zero HCC points.'],['2 more alerts','More alerts… less HCC.']];
+const WRONG_MSGS=["Nope — that's not where HCCs live! 🙃","So close… (not close).","The HCC is lonely. Go find it!","Wrong click! The CMS gods frown. ⛈","That's a lovely button. Wrong one, though."];
+const EMAIL='aes95@pitt.edu'; // completion emails and every contact link on the page use this
+/* ---------- ICONS ---------- */
+const FLAG='<svg class="ic" viewBox="0 0 14 14" aria-hidden="true"><path d="M3.5 1.5v11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4.3 2h7.2l-1.9 2.8 1.9 2.8H4.3z" fill="currentColor"/></svg>';
+const INFO='<svg class="ic" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 6.3v3.9M7 4.1v.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+const PILL='<svg class="ic pill-ic" viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="4" width="12" height="6" rx="3" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 4h-3a3 3 0 0 0 0 6h3z" fill="currentColor"/></svg>';
+const PEN='<svg class="ic" viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 11.5l.6-2.6 6.6-6.6 2 2-6.6 6.6zM8.6 3.4l2 2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+/* ---------- STATE ---------- */
+let S,CONDS=[],PT,round=0,timerId,idleT=0,hintOn=true,soundOn=true,memBest=0;
+const $=id=>document.getElementById(id);
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+function fresh(){return{score:0,wrong:0,good:0,streak:0,opened:false,reviewed:{},added:{},vdx:{},start:null,end:null,done:false,tut:false}}
+document.querySelectorAll('.js-email').forEach(el=>{el.textContent=EMAIL;if(el.tagName==='A')el.href='mailto:'+EMAIL});
+/* ---------- AUDIO ---------- */
+let AC;
+function ac(){if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
+function tone(f,d,type='sine',v=.12,t0=0){if(!soundOn)return;try{const a=ac(),o=a.createOscillator(),g=a.createGain(),t=a.currentTime+t0;
+o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.03)}catch(e){}}
+const sGood=()=>{tone(880,.1,'square',.06);tone(1320,.14,'square',.06,.09)};
+const sBig=()=>[784,988,1175,1568].forEach((f,i)=>tone(f,.13,'triangle',.13,i*.07));
+const sBad=()=>{tone(170,.25,'sawtooth',.1);tone(118,.3,'sawtooth',.08,.06)};
+const sAlert=()=>{tone(1046,.09,'sine',.14);tone(1046,.09,'sine',.14,.14)};
+const sWin=()=>[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,.18,'square',.07,i*.11));
+/* ---------- RENDER ---------- */
+function renderPatient(){
+$('ptName').textContent=PT.name;$('avTxt').textContent=PT.init;
+$('av').style.setProperty('--h',Math.floor(Math.random()*360));
+$('ptAge').textContent=`${PT.age} y.o.`;
+$('ptVitals').textContent=CONDS.some(c=>c.id==='ob')?'Wt 121 kg, BMI 41.3':`Wt ${70+Math.floor(Math.random()*25)} kg, BP 132/78`;
+const advs=shuffle([...DECOY_ADVS.map(a=>`<button type="button" class="alert" data-act="decoy" data-msg="${a[1]}">${FLAG}${a[0]}</button>`),`<button type="button" class="alert" id="ccr" data-act="ccr">${FLAG}Chronic condition recapture</button>`]);
+$('advs').innerHTML=advs.join('');
+const meds=shuffle([...CONDS.flatMap(c=>c.meds),...shuffle(FILLER_MEDS).slice(0,3)]);
+$('meds').innerHTML=meds.map(m=>`<div class="med">${PILL}<button type="button" class="mname" data-act="decoy" data-msg="Meds are evidence — but you capture HCCs in Condition review.">${m[0]}</button><span class="sig">${m[1]}</span><button type="button" class="edit" data-act="decoy" aria-label="Edit ${m[0]}">${PEN}</button></div>`).join('');
+}
+function renderConds(){
+$('conds').innerHTML=CONDS.map(c=>{const on=S.added[c.id];
+return `<div class="cond"><div class="crow">
+<button type="button" class="cname" data-act="cond" data-id="${c.id}">${INFO}<span>${c.name.replace(' (HCC)','')}<span class="hcc">HCC</span></span></button>
+<span class="crow-links"><button type="button" class="link" data-act="decoy" data-msg="Search is for changing the dx — this one's already right.">Search codes</button>
+<button type="button" class="link" data-act="decoy" data-msg="The dx is fine as-is.">Change dx</button></span></div>
+<div class="crow2">
+<button type="button" class="btn" data-act="vdx" data-id="${c.id}">Add visit diagnosis</button>
+<button type="button" class="btn" data-act="decoy" data-msg="Snooze?! The gap stays open. 😱">Snooze</button>
+<button type="button" class="btn" data-act="decoy" data-msg="It's still active — don't ${c.alt==='Mark resolved'?'resolve it':'mark it not applicable'}!">${c.alt}</button>
+<span class="spacer"></span>
+<button type="button" class="pl ${on?'on':''}" data-act="pl" data-id="${c.id}" aria-pressed="${on?'true':'false'}">${on?'✔ Added to problem list':'<span class="box"></span>Add to problem list'}</button></div>
+<div class="ev ${S.reviewed[c.id]?'show':''}" id="ev-${c.id}"><b>Supporting evidence</b><ul>${c.ev.map(x=>'<li>'+x+'</li>').join('')}</ul></div></div>`}).join('');
+}
+function showLearn(c){
+$('learnBody').innerHTML=`<span class="dx">${c.name.replace(' (HCC)','')}</span>
+<div class="kv"><span class="k" style="--c:var(--spo2)">What it is</span>${c.info.what}</div>
+<div class="kv"><span class="k" style="--c:var(--trace)">Document</span>${c.info.doc}</div>
+<div class="kv"><span class="k" style="--c:var(--alarm)">Pitfall</span>${c.info.pit}</div>`;
+if(!RM)$('learn').animate([{boxShadow:'0 0 0 6px rgba(59,217,140,.4)'},{boxShadow:'0 0 0 0 rgba(59,217,140,0)'}],{duration:600});
+}
+function renderVdx(){const ids=Object.keys(S.vdx);
+$('vdList').innerHTML=ids.length?ids.map(id=>`<div class="vdi">✔ ${CONDS.find(c=>c.id===id).name}</div>`).join(''):'No visit diagnoses yet.'}
+function hud(){
+$('score').textContent=S.score;$('wrong').textContent=S.wrong;$('streak').textContent=S.streak;$('roundN').textContent=round;
+const n=Object.keys(S.added).length;$('ringTxt').textContent=n+'/3';$('ringArc').style.strokeDashoffset=119.4*(1-n/3);
+$('acceptBtn').classList.toggle('ready',n===3);
+$('mission').innerHTML=!S.opened?'Step 1: find the <em>Chronic condition recapture</em> alert.'
+:n===3?'All 3 captured! Grab <em>Add visit diagnosis</em> bonuses, then hit <em>Save review</em>.'
+:`Review each condition, then <em>Add to problem list</em>. (${n}/3)`;
+hint();
+}
+function nextTarget(){
+if(!S.opened||!$('cr').classList.contains('show'))return $('ccr');
+for(const c of CONDS){if(!S.reviewed[c.id])return document.querySelector(`[data-act="cond"][data-id="${c.id}"]`);
+if(!S.added[c.id])return document.querySelector(`[data-act="pl"][data-id="${c.id}"]`)}
+return $('acceptBtn');
+}
+function hint(){document.querySelectorAll('.pulse').forEach(e=>e.classList.remove('pulse'));
+if((hintOn||idleT>=12)&&!S.done){const t=nextTarget();t&&t.classList.add('pulse')}}
+/* ---------- TICKER ---------- */
+let tickI=0;
+function tick(){const items=[...PEARLS,...CONDS.map(c=>`${c.name.replace(' (HCC)','')}: ${c.info.doc}`)];
+const el=$('tickTxt');el.style.opacity=0;setTimeout(()=>{el.textContent=items[tickI++%items.length];el.style.opacity=1},400)}
+setInterval(tick,7000);
+/* ---------- FEEDBACK ---------- */
+function pointOf(e){const t=e.target&&e.target.closest?(e.target.closest('[data-act]')||e.target):null;
+if(t&&(e.detail===0||(!e.clientX&&!e.clientY))){const r=t.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}}
+return{x:e.clientX,y:e.clientY}}
+function floatTxt(e,txt,cls){const p=pointOf(e),d=document.createElement('div');d.className='float '+cls;d.textContent=txt;
+d.style.left=(p.x-10)+'px';d.style.top=(p.y-24)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1150)}
+function beat(kind){const g=$('ecg');g.classList.remove('beat','miss');g.getBoundingClientRect();g.classList.add(kind==='bad'?'miss':'beat')}
+let toastT;
+function toast(msg,cls=''){const t=$('toast');t.innerHTML=msg;t.className='show '+cls;clearTimeout(toastT);toastT=setTimeout(()=>t.className='',2200)}
+function award(pts,e,msg,big){S.streak++;S.good++;const b=S.streak>=3?5:0;S.score+=pts+b;
+floatTxt(e,'+'+(pts+b)+(b?' 🔥':''),'good');toast((big?'💥 ':'✅ ')+msg+(b?` · streak +${b}`:''),'good');beat('good');big?sBig():sGood()}
+function wrong(e,msg){S.wrong++;S.streak=0;S.score=Math.max(0,S.score-5);floatTxt(e,'−5','bad');
+toast('❌ '+(msg||WRONG_MSGS[Math.floor(Math.random()*WRONG_MSGS.length)]),'bad');beat('bad');sBad();
+const em=$('emr');em.classList.remove('shake');void em.offsetWidth;em.classList.add('shake')}
+function confetti(){if(RM)return;const cols=['#3BD98C','#4CC6EE','#F5C451','#FF6B6B','#B0A4F6','#FFFFFF'];
+for(let i=0;i<160;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=cols[i%cols.length];document.body.appendChild(c);
+const dx=(Math.random()-.5)*300,dur=1800+Math.random()*1800;
+c.animate([{transform:'translate(0,0)'},{transform:`translate(${dx}px,${innerHeight+60}px) rotate(${720*Math.random()}deg)`}],{duration:dur});setTimeout(()=>c.remove(),dur)}}
+/* ---------- TIMER ---------- */
+const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+const secs=()=>S.start?Math.floor(((S.end||Date.now())-S.start)/1000):0;
+function startTimer(){if(S.start)return;S.start=Date.now();S.tut=hintOn;timerId=setInterval(()=>{$('timer').textContent=fmt(secs());idleT++;if(idleT===12)hint()},1000)}
+/* ---------- TUTORIAL CALLOUT ---------- */
+function setTutorial(on){hintOn=on;const b=$('hintBtn');b.textContent='🎓 Tutorial: '+(on?'on':'off');b.classList.toggle('on',on);if(on&&S.start)S.tut=true;hud()}
+function guideInfo(){
+const el=nextTarget();if(!el)return null;
+const i=CONDS.findIndex(c=>c.id===el.dataset.id)+1;
+switch(el.dataset.act){
+case 'ccr':return{el,t:'Click the Chronic condition recapture alert',w:'It unlocks Condition review, which lists the HCCs to capture.'};
+case 'cond':return{el,t:`Click the condition name (${i} of 3)`,w:'Review the supporting evidence. A primer opens in the Know your Dx panel.'};
+case 'pl':return{el,t:'Click Add to problem list',w:`This captures HCC ${i} of 3. Address it in your note too (MEAT).`};
+case 'accept':return{el,below:true,t:'Click Save review',w:'Optional first: Add visit diagnosis on each condition for +5 each.'};
+}
+return null;
+}
+function placeGuide(){
+const g=$('guide'),info=hintOn&&S&&!S.done&&!$('intro').classList.contains('show')?guideInfo():null,
+cr=info&&info.el.isConnected?info.el.getClientRects():[];
+if(!cr.length){if(g.classList.contains('show'))g.classList.remove('show');return}
+const G=14,vt=Math.max(8,$('banner').getBoundingClientRect().bottom+8),vb=innerHeight-8,r=cr[0],ax=r.left+r.width/2;
+let t=info.t,w=info.w,place='',ay;
+if(r.top>vb-8){place='above';ay=vb;t='⬇ '+t;w='Scroll down to find it. '+w}
+else if(r.bottom<vt+8){place='below';ay=vt;t='⬆ '+t;w='Scroll up to find it. '+w}
+if(g.dataset.k!==t+w){g.dataset.k=t+w;$('gT').textContent=t;$('gW').textContent=w}
+const gw=g.offsetWidth,gh=g.offsetHeight;
+if(!place){place=(info.below&&r.bottom+G+gh<=vb)||r.top-G-gh<vt?'below':'above';ay=place==='above'?r.top:r.bottom}
+const x=Math.min(Math.max(ax-gw/2,8),innerWidth-gw-8),y=place==='above'?ay-gh-G:ay+G;
+g.style.setProperty('--ax',Math.min(Math.max(ax-x,18),gw-18)+'px');
+g.style.transform=`translate(${Math.round(x)}px,${Math.round(y)}px)`;
+const cn='show '+place;if(g.className!==cn)g.className=cn;
+}
+/* ---------- CLICKS (the unlock chain) ---------- */
+$('emr').addEventListener('click',e=>{
+const el=e.target.closest('[data-act]');if(!el||S.done)return;
+startTimer();idleT=0;const act=el.dataset.act,id=el.dataset.id,c=CONDS.find(x=>x.id===id);
+switch(act){
+case 'ccr': if(!S.opened){S.opened=true;award(10,e,'Condition review unlocked!')}else toast('Condition review is open 👇');
+$('cr').classList.add('show');sAlert();$('cr').scrollIntoView({behavior:RM?'auto':'smooth',block:'center'});break;
+case 'cond': if(!S.reviewed[id]){S.reviewed[id]=true;award(10,e,'Evidence reviewed — see the Know your Dx panel')}
+$('ev-'+id).classList.toggle('show');showLearn(c);break;
+case 'pl': if(S.added[id]){toast('Already on the problem list 👍');break}
+if(!S.reviewed[id]){wrong(e,'Review first! Click the condition name to see the evidence.');break}
+S.added[id]=true;award(25,e,'HCC added to the problem list!',true);renderConds();
+if(Object.keys(S.added).length===3)setTimeout(()=>{if(!S.done){toast('🎉 All 3 captured! Now hit Save review.','good');sAlert()}},900);break;
+case 'vdx': if(!S.added[id]){wrong(e,'Add it to the problem list first.');break}
+if(S.vdx[id]){toast('Already a visit diagnosis 👍');break}
+S.vdx[id]=true;award(5,e,'Bonus: visit diagnosis added');renderVdx();break;
+case 'accept': if(Object.keys(S.added).length<3){wrong(e,`Not yet! ${3-Object.keys(S.added).length} HCC(s) still uncaptured.`);break}
+finish();break;
+case 'decoy': wrong(e,el.dataset.msg);break;
+}
+hud();
+});
+/* ---------- FINISH ---------- */
+function getBest(){try{return +(localStorage.getItem('clickLearnBest')||0)}catch(e){return memBest}}
+function setBest(v){memBest=v;try{localStorage.setItem('clickLearnBest',v)}catch(e){}}
+function makeCode(name){const s=`${S.score}|${S.wrong}|${secs()}|${name}|${CONDS.map(c=>c.id).join(',')}|${new Date().toISOString().slice(0,10)}`;
+let h=5381;for(const ch of s)h=((h<<5)+h+ch.charCodeAt(0))>>>0;return 'CL-'+h.toString(36).toUpperCase().padStart(7,'0').slice(-6)+'-'+S.score}
+function finish(){
+S.done=true;S.end=Date.now();clearInterval(timerId);
+const t=secs(),bonus=Math.max(0,90-t);S.score+=bonus;hud();
+$('wPt').textContent=PT.name;$('wScore').textContent=S.score;$('wTime').textContent=fmt(t);
+$('wAcc').textContent=Math.round(100*S.good/Math.max(1,S.good+S.wrong))+'%';
+$('wLearned').innerHTML='<b>📘 You learned</b><ul>'+CONDS.map(c=>'<li>'+c.name.replace(' (HCC)','')+'</li>').join('')+'</ul>';
+$('wBreak').innerHTML=[`Speed bonus +${bonus}`,`Wrong clicks ${S.wrong}`,`Visit dx bonuses ${Object.keys(S.vdx).length}/3`,`${S.tut?'Tutorial':'Challenge'} mode`].map(x=>`<span>${x}</span>`).join('');
+const best=getBest();if(S.score>best)setBest(S.score);
+$('best').textContent=S.score>best?`🌟 New personal best! (previous: ${best})`:`Personal best: ${best}`;
+updateMail();sWin();confetti();setTimeout(()=>{$('win').classList.add('show');$('wName').focus()},500);
+}
+function updateMail(){
+const name=$('wName').value.trim()||'(name not entered)',code=makeCode(name);$('wCode').textContent=code;
+const body=['ClickLearn: Add the HCC! — completed','',`Name: ${name}`,`Completion code: ${code}`,`Score: ${S.score}`,`Mode: ${S.tut?'Tutorial (guided)':'Challenge (no tutorial)'}`,
+`Conditions captured (3/3):`,...CONDS.map(c=>' - '+c.name.replace(' (HCC)','')),
+`Visit dx bonuses: ${Object.keys(S.vdx).length}/3`,`Wrong clicks: ${S.wrong}`,`Time: ${fmt(secs())}`,`Date: ${new Date().toLocaleString()}`].join('\n');
+$('mailBtn').href=`mailto:${EMAIL}?subject=${encodeURIComponent('ClickLearn completion verification – '+name+' – '+code)}&body=${encodeURIComponent(body)}`;
+}
+$('wName').addEventListener('input',updateMail);
+$('mailBtn').addEventListener('click',e=>{if(!$('wName').value.trim()){e.preventDefault();$('wName').focus();$('wName').style.borderColor='var(--bad)';toast('✍️ Add your name first so your completion can be verified!','bad');sBad()}else sGood()});
+$('copyBtn').onclick=()=>{const code=$('wCode').textContent,ok=()=>toast('Code copied 📋','good'),
+manual=()=>{const r=document.createRange();r.selectNodeContents($('wCode'));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Code selected. Press Ctrl+C to copy it.')};
+navigator.clipboard?navigator.clipboard.writeText(code).then(ok,manual):manual()};
+/* ---------- ROUNDS ---------- */
+function newRound(){
+clearInterval(timerId);S=fresh();idleT=0;round++;$('timer').textContent='0:00';
+CONDS=shuffle(POOL).slice(0,3);const n=NAMES[Math.floor(Math.random()*NAMES.length)];
+PT={name:n[0],init:n[1],age:55+Math.floor(Math.random()*25)};
+$('cr').classList.remove('show');$('win').classList.remove('show');$('wName').style.borderColor='';
+$('learnBody').innerHTML='Click a condition name in Condition review to learn about it here.';
+renderPatient();renderConds();renderVdx();hud();tick();window.scrollTo({top:0});
+}
+$('startBtn').onclick=()=>{ac();sAlert();setTutorial(true);$('intro').classList.remove('show')};
+$('againBtn').onclick=()=>{newRound();sGood();toast('🧑‍⚕️ New patient, new HCCs!')};
+$('resetBtn').onclick=()=>{newRound();toast('🧑‍⚕️ New patient, new HCCs!')};
+$('hintBtn').onclick=()=>{setTutorial(!hintOn);toast(hintOn?'🎓 Tutorial on: follow the green callouts.':'⚡ Tutorial off: hints only appear if you sit idle.')};
+$('sndBtn').onclick=()=>{soundOn=!soundOn;$('sndBtn').textContent=soundOn?'🔊 Sound':'🔇 Muted';if(soundOn)sGood()};
+newRound();setTutorial(true);$('startBtn').focus();
+(function guideLoop(){placeGuide();requestAnimationFrame(guideLoop)})();
+</script>
+</body>
+</html>
